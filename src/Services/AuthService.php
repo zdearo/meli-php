@@ -4,16 +4,17 @@ namespace zdearo\Meli\Services;
 
 use zdearo\Meli\Http\MeliClient;
 use GuzzleHttp\Exception\RequestException;
+use zdearo\Meli\Enums\MarketplaceEnum;
 
 class AuthService
 {
     private MeliClient $client;
     private string $uri;
 
-    public function __construct(MeliClient $client, string $uri)
+    public function __construct(MeliClient $client, MarketplaceEnum $region)
     {
+        $this->uri = $region->domain();
         $this->client = $client;
-        $this->uri = $uri;
     }
 
     public function getAuthUrl(string $redirectUri, string $clientId): string
