@@ -2,27 +2,24 @@
 
 namespace zdearo\Meli;
 
-use zdearo\Meli\Enums\MarketplaceEnum;
 use zdearo\Meli\Http\MeliClient;
 use zdearo\Meli\Services\AuthService;
+use zdearo\Meli\Enums\MarketplaceEnum;
 
 class Meli
 {
     private MeliClient $client;
+    private string $uri;
 
-    private string $clientId;
-
-    private MarketplaceEnum $marketplace;
-
-    public function __construct(string $clientId, MarketplaceEnum $marketplace)
+    public function __construct(string $region, string $apiToken = '')
     {
-        $this->client = new MeliClient;
-        $this->clientId = $clientId;
-        $this->marketplace = $marketplace;
+        $this->uri = MarketplaceEnum::{$region}->domain();
+        $this->client = new MeliClient($apiToken, $this->uri);
     }
 
     public function auth(): AuthService
     {
-        return new AuthService($this->client, $this->clientId, $this->marketplace);
+        return new AuthService($this->client, $this->uri);
     }
 }
+
