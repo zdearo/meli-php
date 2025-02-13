@@ -3,6 +3,7 @@
 namespace zdearo\Meli\Services;
 
 use GuzzleHttp\Exception\RequestException;
+use zdearo\Meli\Enums\MarketplaceEnum;
 use zdearo\Meli\Http\MeliClient;
 
 class SearchItemService
@@ -10,18 +11,17 @@ class SearchItemService
     private MeliClient $client;
     private string $uri;
 
-    public function __construct(MeliClient $client, string $uri = 'sites/MLA/search')
+    public function __construct(MeliClient $client, MarketplaceEnum $region)
     {
         $this->client = $client;
-        $this->uri = $uri;
+        $this->uri = "sites/{$region->value}/search";
     }
 
-    public function searchItems(string $query, string $token)
+    public function byQuery(string $query)
     {
         try {
-            $response = $this->client->getClient()->get($this->uri, [
+            $response = $this->client->getClient()->get("{$this->uri}", [
                 'query' => ['q' => $query],
-                'headers' => ['Authorization' => "Bearer $token"]
             ]);
 
             return json_decode($response->getBody(), true);
