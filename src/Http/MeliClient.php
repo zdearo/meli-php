@@ -10,11 +10,11 @@ class MeliClient
     private Client $client;
     private string $apiToken;
 
-    public function __construct(string $apiToken, string $uri)
+    public function __construct(string $apiToken)
     {
         $this->apiToken = $apiToken;
         $this->client = new Client([
-            'base_uri' => "https://api.{$uri}/",
+            'base_uri' => "https://api.mercadolibre.com/",
             'headers'  => $this->getHeaders(),
             'timeout' => 10.0,
         ]);
