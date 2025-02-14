@@ -1,6 +1,6 @@
 <?php
 
-namespace zdearo\Meli\Enums;
+namespace Zdearo\Meli\Enums;
 
 enum MarketplaceEnum: string
 {

@@ -1,11 +1,11 @@
 {
-    "name": "zdearo/meli-php-sdk",
+    "name": "zdearo/meli-php",
     "description": "A simple and efficient PHP SDK for integrating with the Mercado Libre API, providing methods for authentication, product listing, orders, and other essential operations.",
     "type": "library",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "zdearo\\Meli\\": "src/"
+            "Zdearo\\Meli\\": "src/"
         }
     },
     "authors": [
