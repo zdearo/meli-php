@@ -1,6 +1,6 @@
 <?php
 
-namespace zdearo\Meli\Http;
+namespace Zdearo\Meli\Http;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;

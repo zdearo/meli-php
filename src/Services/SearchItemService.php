@@ -1,60 +1,49 @@
 <?php
 
-namespace zdearo\Meli\Services;
+namespace Zdearo\Meli\Services;
 
-use GuzzleHttp\Exception\RequestException;
-use zdearo\Meli\Enums\MarketplaceEnum;
-use zdearo\Meli\Http\MeliClient;
+use Zdearo\Meli\Services\BaseService;
+use Zdearo\Meli\Enums\MarketplaceEnum;
+use Zdearo\Meli\Http\MeliClient;
 
-class SearchItemService
+class SearchItemService extends BaseService
 {
-    private MeliClient $client;
     private string $siteUri;
 
-    public function __construct(MeliClient $client, MarketplaceEnum $region)
+    public function __construct(MarketplaceEnum $region, MeliClient $client)
     {
-        $this->client = $client;
+        parent::__construct($client);
         $this->siteUri = "sites/{$region->value}/search";
-    }
-
-    private function fetch(string $uri, array $value = [])
-    {
-        try {
-            $response = $this->client->getClient()->get($uri, ['query' => $value]);
-            return json_decode($response->getBody(), true);
-        } catch (RequestException $e) {
-            return $this->client->handleRequestException($e)['message'];
-        }
     }
 
     public function byQuery(string $value)
     {
-        return $this->fetch($this->siteUri, ['q' => $value]);
+        return $this->request('GET', $this->siteUri, ['q' => $value]);
     }
 
     public function byCategory(string $categoryId)
     {
-        return $this->fetch($this->siteUri, ['category' => $categoryId]);
+        return $this->request('GET', $this->siteUri, ['category' => $categoryId]);
     }
 
     public function byNickname(string $nickname)
     {
-        return $this->fetch($this->siteUri, ['nickname' => $nickname]);
+        return $this->request('GET', $this->siteUri, ['nickname' => $nickname]);
     }
 
-    public function bySeller(int $sellerId, ?string $categoryId = null)
+    public function bySeller(int $sellerId, string $categoryId = null)
     {
         $value = ['seller_id' => $sellerId];
         if ($categoryId) {
             $value['category'] = $categoryId;
         }
-        return $this->fetch($this->siteUri, $value);
+        return $this->request('GET', $this->siteUri, $value);
     }
 
     public function byUserItems(int $userId, bool $scan = false)
     {
         $value = $scan ? ['search_type' => 'scan'] : [];
-        return $this->fetch("users/{$userId}/items/search", $value);
+        return $this->request('GET', "users/{$userId}/items/search", $value);
     }
 
     public function multiGetItems(array $itemIds, array $attributes = [])
@@ -63,11 +52,11 @@ class SearchItemService
         if (!empty($attributes)) {
             $value['attributes'] = implode(',', $attributes);
         }
-        return $this->fetch('items', $value);
+        return $this->request('GET', 'items', $value);
     }
 
     public function multiGetUsers(array $userIds)
     {
-        return $this->fetch('users', ['ids' => implode(',', $userIds)]);
+        return $this->request('GET', 'users', ['ids' => implode(',', $userIds)]);
     }
 }

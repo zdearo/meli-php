@@ -1,42 +1,30 @@
 <?php
 
-namespace zdearo\Meli\Services;
+namespace Zdearo\Meli\Services;
 
-use GuzzleHttp\Exception\RequestException;
-use zdearo\Meli\Http\MeliClient;
+use Zdearo\Meli\Services\BaseService;
+use Zdearo\Meli\Http\MeliClient;
 
-class ProductService
+class ProductService extends BaseService
 {
-    private MeliClient $client;
     private string $uri = 'items';
 
     public function __construct(MeliClient $client)
     {
-        $this->client = $client;
+        parent::__construct($client);
     }
 
-    private function request(string $method, string $uri, array $data = [])
-    {
-        try {
-            $options = !empty($data) ? ['json' => $data] : [];
-            $response = $this->client->getClient()->request($method, $uri, $options);
-            return json_decode($response->getBody(), true);
-        } catch (RequestException $e) {
-            return $this->client->handleRequestException($e)['message'];
-        }
-    }
-
-    public function createProduct(array $productData)
+    public function create(array $productData)
     {
         return $this->request('POST', $this->uri, $productData);
     }
 
-    public function getProduct(string $itemId)
+    public function get(string $itemId)
     {
         return $this->request('GET', "{$this->uri}/{$itemId}");
     }
 
-    public function updateProduct(string $itemId, array $updateData)
+    public function update(string $itemId, array $updateData)
     {
         return $this->request('PUT', "{$this->uri}/{$itemId}", $updateData);
     }
