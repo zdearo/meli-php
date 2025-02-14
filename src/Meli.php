@@ -6,6 +6,7 @@ use zdearo\Meli\Http\MeliClient;
 use zdearo\Meli\Services\AuthService;
 use zdearo\Meli\Enums\MarketplaceEnum;
 use zdearo\Meli\Services\SearchItemService;
+use zdearo\Meli\Services\ProductService;
 
 class Meli
 {
@@ -31,5 +32,10 @@ class Meli
     public function searchItems(): SearchItemService
     {
         return new SearchItemService($this->client, $this->region);
+    }
+
+    public function manageProducts(): ProductService
+    {
+        return new ProductService($this->client);
     }
 }
