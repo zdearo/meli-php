@@ -13,7 +13,7 @@ class Meli
 
     public function __construct(string $region, string $apiToken = '')
     {
-        $this->region = MarketplaceEnum::{$region};
+        $this->region = constant(MarketplaceEnum::class . '::' . strtoupper($region));
         $this->client = new MeliClient($apiToken);
     }
 
