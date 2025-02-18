@@ -35,12 +35,10 @@ class AuthService extends BaseService
     public function refreshToken(string $clientId, string $clientSecret, string $refreshToken)
     {
         return $this->request('POST', 'http://api.mercadolibre.com/oauth/token', [
-            'form_params' => [
-                'grant_type'    => 'refresh_token',
-                'client_id'     => $clientId,
-                'client_secret' => $clientSecret,
-                'refresh_token' => $refreshToken,
-            ],
+            'grant_type'    => 'refresh_token',
+            'client_id'     => $clientId,
+            'client_secret' => $clientSecret,
+            'refresh_token' => $refreshToken,
         ]);
     }
 }
