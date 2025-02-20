@@ -16,9 +16,9 @@ class SearchItemService extends BaseService
         $this->siteUri = "sites/{$region->value}/search";
     }
 
-    public function byQuery(string $value)
+    public function byQuery(string $value, int $offset = 0)
     {
-        return $this->request('GET', $this->siteUri, ['q' => $value]);
+        return $this->request('GET', $this->siteUri, ['q' => $value, 'offset' => $offset]);
     }
 
     public function byCategory(string $categoryId)
