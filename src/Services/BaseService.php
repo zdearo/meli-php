@@ -47,8 +47,6 @@ abstract class BaseService
             return ResponseHandler::handleResponse($response);
         } catch (RequestException $e) {
             ResponseHandler::handleException($e);
-            // This line will never be reached because handleException throws an exception
-            return [];
         }
     }    
 }
