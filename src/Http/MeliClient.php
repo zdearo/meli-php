@@ -9,28 +9,46 @@ class MeliClient
 {
     private Client $client;
     private string $apiToken;
+    private float $timeout;
 
-    public function __construct(string $apiToken)
+    /**
+     * Create a new MeliClient instance.
+     *
+     * @param string $apiToken The API token for authentication
+     * @param float $timeout The timeout for API requests in seconds
+     */
+    public function __construct(string $apiToken, float $timeout = 10.0)
     {
         $this->apiToken = $apiToken;
+        $this->timeout = $timeout;
         $this->client = new Client([
             'base_uri' => "https://api.mercadolibre.com/",
             'headers'  => $this->getHeaders(),
-            'timeout' => 10.0,
+            'timeout' => $this->timeout,
         ]);
-
     }
 
+    /**
+     * Get the headers for API requests.
+     *
+     * @return array<string, string>
+     */
     private function getHeaders(): array
     {
         return [
             'accept'        => 'application/json',
             'authorization' => $this->apiToken ? "Bearer {$this->apiToken}" : '',
-            'content-type'  => 'application/x-www-form-urlencoded',
+            'content-type'  => 'application/json',
         ];
     }
 
-    public function handleRequestException(RequestException $e)
+    /**
+     * Handle a request exception.
+     *
+     * @param RequestException $e The exception to handle
+     * @return array<string, mixed> The formatted error response
+     */
+    public function handleRequestException(RequestException $e): array
     {
         $response = $e->getResponse();
         $statusCode = $response ? $response->getStatusCode() : 500;
@@ -44,9 +62,13 @@ class MeliClient
         ];
     }
 
+    /**
+     * Get the Guzzle client instance.
+     *
+     * @return Client
+     */
     public function getClient(): Client
     {
         return $this->client;
     }
 }
-
