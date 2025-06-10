@@ -197,9 +197,61 @@ try {
 } catch (ApiException $e) {
     $statusCode = $e->getStatusCode();
     $message = $e->getMessage();
-    
+
     // Handle the error
 }
+```
+
+## Testing
+
+This package uses [Pest PHP](https://pestphp.com/) for testing. To run the tests:
+
+```bash
+composer install
+./vendor/bin/pest
+```
+
+### Test Structure
+
+The tests are organized into the following directories:
+
+- `tests/Unit`: Unit tests for individual components
+  - `tests/Unit/Exceptions`: Tests for exception classes
+  - `tests/Unit/Http`: Tests for HTTP-related classes
+  - `tests/Unit/Services`: Tests for service classes
+
+### Writing Tests
+
+If you want to contribute to this package, please make sure to add tests for your changes. The tests use mocking to avoid making actual API calls, ensuring they can run in isolation.
+
+Example of a service test:
+
+```php
+test('can search items by query', function () {
+    // Create a mock response
+    $responseData = [
+        'results' => [
+            ['id' => 'MLB123', 'title' => 'Item 1'],
+        ],
+    ];
+
+    $mock = new MockHandler([
+        new Response(200, [], json_encode($responseData)),
+    ]);
+
+    $handlerStack = HandlerStack::create($mock);
+    $guzzleClient = new Client(['handler' => $handlerStack]);
+
+    // Mock the MeliClient to return our mocked Guzzle client
+    $meliClient = m::mock(MeliClient::class);
+    $meliClient->shouldReceive('getClient')->andReturn($guzzleClient);
+
+    $service = new SearchItemService(MarketplaceEnum::BRASIL, $meliClient);
+    $result = $service->byQuery('smartphone');
+
+    expect($result)->toBeArray();
+    expect($result)->toHaveKey('results');
+});
 ```
 
 ## License

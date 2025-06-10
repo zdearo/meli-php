@@ -34,10 +34,11 @@ class SearchItemService extends BaseService
      * Search items by query.
      *
      * @param string $value The search query
+     * @param int $offset The offset for pagination (optional)
      * @return array<string, mixed> The search results
      * @throws ApiException If the request fails
      */
-    public function byQuery(string $value): array
+    public function byQuery(string $value, int $offset = 0): array
     {
         return $this->request('GET', $this->siteUri, ['q' => $value, 'offset' => $offset]);
     }
