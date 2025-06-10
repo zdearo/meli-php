@@ -32,7 +32,7 @@ class ResponseHandler
         $statusCode = $response ? $response->getStatusCode() : 0;
         $reasonPhrase = $response ? $response->getReasonPhrase() : 'Unknown Error';
         $body = $response ? json_decode($response->getBody()->getContents(), true) : null;
-
+      
         $message = "Mercado Libre API Error [{$statusCode}]: {$reasonPhrase}";
 
         if (is_array($body) && isset($body['message'])) {

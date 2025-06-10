@@ -21,6 +21,7 @@ class Meli
     public function __construct(string $region, string $apiToken = '', float $timeout = 10.0)
     {
         $this->region = constant(MarketplaceEnum::class . '::' . strtoupper($region));
+
         $this->client = new MeliClient($apiToken, $timeout);
     }
 
