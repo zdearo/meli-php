@@ -63,11 +63,11 @@ Meli::products()->update('MLB123456789', ['price' => 89.99]);
 Meli::products()->changeStatus('MLB123456789', 'paused');
 
 // Busca
-$resultados = Meli::search()->byQuery('smartphone samsung');
-$resultados = Meli::search()->byCategory('MLB1055');
-$resultados = Meli::search()->bySeller(123456789);
-$itens = Meli::search()->byUserItems(123456789);
-$itens = Meli::search()->multiGetItems(['MLB123', 'MLB456']);
+$resultados = Meli::searchItem()->byQuery('smartphone samsung');
+$resultados = Meli::searchItem()->byCategory('MLB1055');
+$resultados = Meli::searchItem()->bySeller(123456789);
+$itens = Meli::searchItem()->byUserItems(123456789);
+$itens = Meli::searchItem()->multiGetItems(['MLB123', 'MLB456']);
 
 // Visitas
 $visitas = Meli::visits()->totalByUser(123456789, '2024-01-01', '2024-12-31');

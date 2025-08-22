@@ -20,7 +20,7 @@ class MeliApiClient extends ApiClient
         return "https://auth.{$authDomain}/authorization?response_type=code&client_id={$clientId}&redirect_uri={$redirectUri}&state={$state}";
     }
 
-    public static function generateState(): string
+    protected static function generateState(): string
     {
         return bin2hex(random_bytes(16));
     }
@@ -35,7 +35,7 @@ class MeliApiClient extends ApiClient
         return app(ProductService::class);
     }
 
-    public function search(): SearchItemService
+    public function searchItem(): SearchItemService
     {
         return app(SearchItemService::class);
     }
