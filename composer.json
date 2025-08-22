@@ -21,12 +21,12 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^8.0",
+        "php": "^8.1",
         "guzzlehttp/guzzle": "7.9",
         "ext-json": "*"
     },
     "require-dev": {
-        "laravel/pint": "^1.20",
+        "laravel/pint": "^1.24",
         "pestphp/pest": "^2.0",
         "pestphp/pest-plugin-laravel": "^2.0",
         "mockery/mockery": "^1.5"
@@ -34,7 +34,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Zdearo\\Meli\\Providers\\MeliServiceProvider"
+                "Zdearo\\Meli\\MeliServiceProvider"
             ]
         }
     },
