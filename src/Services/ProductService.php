@@ -13,8 +13,9 @@ class ProductService
     /**
      * Create a new product.
      *
-     * @param array<string, mixed> $productData The product data
+     * @param  array<string, mixed>  $productData  The product data
      * @return array<string, mixed> The created product
+     *
      * @throws ApiException If the request fails
      */
     public function create(array $productData): array
@@ -28,8 +29,9 @@ class ProductService
     /**
      * Get a product by its ID.
      *
-     * @param string $itemId The product ID
+     * @param  string  $itemId  The product ID
      * @return array<string, mixed> The product
+     *
      * @throws ApiException If the request fails
      */
     public function get(string $itemId): array
@@ -42,9 +44,10 @@ class ProductService
     /**
      * Update a product.
      *
-     * @param string $itemId The product ID
-     * @param array<string, mixed> $updateData The update data
+     * @param  string  $itemId  The product ID
+     * @param  array<string, mixed>  $updateData  The update data
      * @return array<string, mixed> The updated product
+     *
      * @throws ApiException If the request fails
      */
     public function update(string $itemId, array $updateData): array
@@ -58,9 +61,10 @@ class ProductService
     /**
      * Change the status of a product.
      *
-     * @param string $itemId The product ID
-     * @param string $status The new status
+     * @param  string  $itemId  The product ID
+     * @param  string  $status  The new status
      * @return array<string, mixed> The updated product
+     *
      * @throws ApiException If the request fails
      */
     public function changeStatus(string $itemId, string $status): array

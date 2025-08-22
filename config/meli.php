@@ -19,8 +19,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | The region to use for the Mercado Libre API. Available options are:
-    | ARGENTINA, BOLIVIA, BRASIL, CHILE, COLOMBIA, COSTA_RICA, CUBA, 
-    | DOMINICANA, ECUADOR, EL_SALVADOR, GUATEMALA, HONDURAS, MEXICO, 
+    | ARGENTINA, BOLIVIA, BRASIL, CHILE, COLOMBIA, COSTA_RICA, CUBA,
+    | DOMINICANA, ECUADOR, EL_SALVADOR, GUATEMALA, HONDURAS, MEXICO,
     | NICARAGUA, PANAMA, PARAGUAY, PERU, URUGUAY, VENEZUELA
     |
     */

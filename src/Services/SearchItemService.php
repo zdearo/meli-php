@@ -13,15 +13,13 @@ class SearchItemService
 {
     /**
      * The site URI for search requests.
-     *
-     * @var string
      */
     private string $siteUri;
 
     /**
      * Create a new search item service instance.
      *
-     * @param MarketplaceEnum $region The marketplace region
+     * @param  MarketplaceEnum  $region  The marketplace region
      */
     public function __construct(MarketplaceEnum $region)
     {
@@ -31,9 +29,10 @@ class SearchItemService
     /**
      * Search items by query.
      *
-     * @param string $value The search query
-     * @param int $offset The offset for pagination (optional)
+     * @param  string  $value  The search query
+     * @param  int  $offset  The offset for pagination (optional)
      * @return array<string, mixed> The search results
+     *
      * @throws ApiException If the request fails
      */
     public function byQuery(string $value, int $offset = 0): array
@@ -47,8 +46,9 @@ class SearchItemService
     /**
      * Search items by category.
      *
-     * @param string $categoryId The category ID
+     * @param  string  $categoryId  The category ID
      * @return array<string, mixed> The search results
+     *
      * @throws ApiException If the request fails
      */
     public function byCategory(string $categoryId): array
@@ -62,8 +62,9 @@ class SearchItemService
     /**
      * Search items by seller nickname.
      *
-     * @param string $nickname The seller nickname
+     * @param  string  $nickname  The seller nickname
      * @return array<string, mixed> The search results
+     *
      * @throws ApiException If the request fails
      */
     public function byNickname(string $nickname): array
@@ -77,15 +78,16 @@ class SearchItemService
     /**
      * Search items by seller ID.
      *
-     * @param int $sellerId The seller ID
-     * @param string|null $categoryId The category ID (optional)
+     * @param  int  $sellerId  The seller ID
+     * @param  string|null  $categoryId  The category ID (optional)
      * @return array<string, mixed> The search results
+     *
      * @throws ApiException If the request fails
      */
     public function bySeller(int $sellerId, ?string $categoryId = null): array
     {
         $query = ['seller_id' => $sellerId];
-        
+
         if ($categoryId) {
             $query['category'] = $categoryId;
         }
@@ -99,9 +101,10 @@ class SearchItemService
     /**
      * Search items by user ID.
      *
-     * @param int $userId The user ID
-     * @param bool $scan Whether to use scan search type
+     * @param  int  $userId  The user ID
+     * @param  bool  $scan  Whether to use scan search type
      * @return array<string, mixed> The search results
+     *
      * @throws ApiException If the request fails
      */
     public function byUserItems(int $userId, bool $scan = false): array
@@ -117,16 +120,17 @@ class SearchItemService
     /**
      * Get multiple items by their IDs.
      *
-     * @param array<int, string> $itemIds The item IDs
-     * @param array<int, string> $attributes The attributes to include (optional)
+     * @param  array<int, string>  $itemIds  The item IDs
+     * @param  array<int, string>  $attributes  The attributes to include (optional)
      * @return array<string, mixed> The items
+     *
      * @throws ApiException If the request fails
      */
     public function multiGetItems(array $itemIds, array $attributes = []): array
     {
         $query = ['ids' => implode(',', $itemIds)];
-        
-        if (!empty($attributes)) {
+
+        if (! empty($attributes)) {
             $query['attributes'] = implode(',', $attributes);
         }
 
@@ -139,8 +143,9 @@ class SearchItemService
     /**
      * Get multiple users by their IDs.
      *
-     * @param array<int, int> $userIds The user IDs
+     * @param  array<int, int>  $userIds  The user IDs
      * @return array<string, mixed> The users
+     *
      * @throws ApiException If the request fails
      */
     public function multiGetUsers(array $userIds): array

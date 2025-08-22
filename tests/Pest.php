@@ -22,7 +22,6 @@ uses(\PHPUnit\Framework\TestCase::class)->in('Unit');
 |
 */
 
-
 /*
 |--------------------------------------------------------------------------
 | Expectations

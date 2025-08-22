@@ -3,21 +3,18 @@
 namespace Zdearo\Meli\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use Zdearo\Meli\Support\MeliApiClient;
 
 /**
  * @method static string getAuthUrl(string $state = null)
  * @method static string generateState()
  * @method static \Illuminate\Http\Client\Response send(\Zdearo\Meli\Support\ApiRequest $request)
- * 
+ *
  * @see \Zdearo\Meli\Support\MeliApiClient
  */
 class Meli extends Facade
 {
     /**
      * Get the registered name of the component.
-     *
-     * @return string
      */
     protected static function getFacadeAccessor(): string
     {

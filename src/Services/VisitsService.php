@@ -10,14 +10,14 @@ use Zdearo\Meli\Support\ApiRequest;
  */
 class VisitsService
 {
-
     /**
      * Get total visits for a user's items within a date range.
      *
-     * @param int $userId The user ID
-     * @param string $dateFrom The start date (format: YYYY-MM-DD)
-     * @param string $dateTo The end date (format: YYYY-MM-DD)
+     * @param  int  $userId  The user ID
+     * @param  string  $dateFrom  The start date (format: YYYY-MM-DD)
+     * @param  string  $dateTo  The end date (format: YYYY-MM-DD)
      * @return array<string, mixed> The visit statistics
+     *
      * @throws ApiException If the request fails
      */
     public function totalByUser(int $userId, string $dateFrom, string $dateTo): array
@@ -25,7 +25,7 @@ class VisitsService
         return ApiRequest::get("users/{$userId}/items_visits")
             ->withQuery([
                 'date_from' => $dateFrom,
-                'date_to'   => $dateTo,
+                'date_to' => $dateTo,
             ])
             ->send()
             ->json();
@@ -34,8 +34,9 @@ class VisitsService
     /**
      * Get total visits for an item.
      *
-     * @param string $itemId The item ID
+     * @param  string  $itemId  The item ID
      * @return array<string, mixed> The visit statistics
+     *
      * @throws ApiException If the request fails
      */
     public function totalByItem(string $itemId): array
@@ -49,19 +50,20 @@ class VisitsService
     /**
      * Get total visits for multiple items within a date range.
      *
-     * @param array<int, string> $itemIds The item IDs
-     * @param string $dateFrom The start date (format: YYYY-MM-DD)
-     * @param string $dateTo The end date (format: YYYY-MM-DD)
+     * @param  array<int, string>  $itemIds  The item IDs
+     * @param  string  $dateFrom  The start date (format: YYYY-MM-DD)
+     * @param  string  $dateTo  The end date (format: YYYY-MM-DD)
      * @return array<string, mixed> The visit statistics
+     *
      * @throws ApiException If the request fails
      */
     public function totalByItemsDateRange(array $itemIds, string $dateFrom, string $dateTo): array
     {
         return ApiRequest::get('items/visits')
             ->withQuery([
-                'ids'       => implode(',', $itemIds),
+                'ids' => implode(',', $itemIds),
                 'date_from' => $dateFrom,
-                'date_to'   => $dateTo,
+                'date_to' => $dateTo,
             ])
             ->send()
             ->json();
@@ -70,11 +72,12 @@ class VisitsService
     /**
      * Get visits for a user's items within a time window.
      *
-     * @param int $userId The user ID
-     * @param int $last The number of time units
-     * @param string $unit The time unit (day, week, month)
-     * @param string|null $ending The end date (format: YYYY-MM-DD)
+     * @param  int  $userId  The user ID
+     * @param  int  $last  The number of time units
+     * @param  string  $unit  The time unit (day, week, month)
+     * @param  string|null  $ending  The end date (format: YYYY-MM-DD)
      * @return array<string, mixed> The visit statistics
+     *
      * @throws ApiException If the request fails
      */
     public function visitsByUserTimeWindow(int $userId, int $last, string $unit, ?string $ending = null): array
@@ -97,11 +100,12 @@ class VisitsService
     /**
      * Get visits for an item within a time window.
      *
-     * @param string $itemId The item ID
-     * @param int $last The number of time units
-     * @param string $unit The time unit (day, week, month)
-     * @param string|null $ending The end date (format: YYYY-MM-DD)
+     * @param  string  $itemId  The item ID
+     * @param  int  $last  The number of time units
+     * @param  string  $unit  The time unit (day, week, month)
+     * @param  string|null  $ending  The end date (format: YYYY-MM-DD)
      * @return array<string, mixed> The visit statistics
+     *
      * @throws ApiException If the request fails
      */
     public function visitsByItemTimeWindow(string $itemId, int $last, string $unit, ?string $ending = null): array

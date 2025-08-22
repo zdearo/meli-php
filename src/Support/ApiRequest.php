@@ -8,7 +8,9 @@ use Zdearo\Meli\Enums\HttpMethod;
 class ApiRequest
 {
     protected array $headers = [];
+
     protected array $query = [];
+
     protected array $body = [];
 
     protected ApiClient $client;
@@ -16,7 +18,7 @@ class ApiRequest
     public function __construct(
         protected HttpMethod $method = HttpMethod::GET,
         protected string $uri = ''
-    ){
+    ) {
         $this->client = app(ApiClient::class);
     }
 
@@ -28,18 +30,21 @@ class ApiRequest
     public function withQuery(array $query): ApiRequest
     {
         $this->query = $query;
+
         return $this;
     }
 
     public function withHeaders(array $headers): ApiRequest
     {
         $this->headers = $headers;
+
         return $this;
     }
 
     public function withBody(array $body): ApiRequest
     {
         $this->body = $body;
+
         return $this;
     }
 

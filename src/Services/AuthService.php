@@ -15,8 +15,9 @@ class AuthService
     /**
      * Get an access token using an authorization code.
      *
-     * @param string $code The authorization code
+     * @param  string  $code  The authorization code
      * @return Response The response (use ->json() to get array data)
+     *
      * @throws ApiException If the request fails
      * @throws InvalidArgumentException If the required config is missing
      */
@@ -26,11 +27,11 @@ class AuthService
 
         return ApiRequest::post('oauth/token')
             ->withBody([
-                'grant_type'    => 'authorization_code',
-                'client_id'     => config('meli.client_id'),
+                'grant_type' => 'authorization_code',
+                'client_id' => config('meli.client_id'),
                 'client_secret' => config('meli.client_secret'),
-                'code'          => $code,
-                'redirect_uri'  => config('meli.redirect_uri'),
+                'code' => $code,
+                'redirect_uri' => config('meli.redirect_uri'),
             ])
             ->send();
     }
@@ -38,8 +39,9 @@ class AuthService
     /**
      * Refresh an access token using a refresh token.
      *
-     * @param string $refreshToken The refresh token
+     * @param  string  $refreshToken  The refresh token
      * @return Response The response (use ->json() to get array data)
+     *
      * @throws ApiException If the request fails
      * @throws InvalidArgumentException If the required config is missing
      */
@@ -49,8 +51,8 @@ class AuthService
 
         return ApiRequest::post('oauth/token')
             ->withBody([
-                'grant_type'    => 'refresh_token',
-                'client_id'     => config('meli.client_id'),
+                'grant_type' => 'refresh_token',
+                'client_id' => config('meli.client_id'),
                 'client_secret' => config('meli.client_secret'),
                 'refresh_token' => $refreshToken,
             ])
@@ -60,8 +62,9 @@ class AuthService
     /**
      * Get token data as array.
      *
-     * @param string $code The authorization code
+     * @param  string  $code  The authorization code
      * @return array<string, mixed> The token data
+     *
      * @throws ApiException If the request fails
      * @throws InvalidArgumentException If the required config is missing
      */
@@ -73,8 +76,9 @@ class AuthService
     /**
      * Refresh token data as an array.
      *
-     * @param string $refreshToken The refresh token
+     * @param  string  $refreshToken  The refresh token
      * @return array<string, mixed> The token data
+     *
      * @throws ApiException If the request fails
      * @throws InvalidArgumentException If the required config is missing
      */
@@ -91,7 +95,7 @@ class AuthService
     private function validateConfig(): void
     {
         $required = ['client_id', 'client_secret', 'redirect_uri'];
-        
+
         foreach ($required as $key) {
             if (empty(config("meli.{$key}"))) {
                 throw new InvalidArgumentException("Missing required config: meli.{$key}");
