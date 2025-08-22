@@ -13,7 +13,7 @@ class MeliServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__.'/../../config/meli.php', 'meli'
+            __DIR__.'/../config/meli.php', 'meli'
         );
 
         $this->app->singleton('meli', function ($app) {
@@ -27,7 +27,7 @@ class MeliServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes([
-            __DIR__.'/../../config/meli.php' => config_path('meli.php'),
+            __DIR__.'/../config/meli.php' => config_path('meli.php'),
         ], 'meli-config');
     }
 }
