@@ -4,12 +4,12 @@ namespace Zdearo\Meli\Services;
 
 use Zdearo\Meli\Enums\MarketplaceEnum;
 use Zdearo\Meli\Exceptions\ApiException;
-use Zdearo\Meli\Support\ApiClient;
+use Zdearo\Meli\Support\ApiRequest;
 
 /**
  * Service for searching items in the Mercado Libre API.
  */
-class SearchItemService extends BaseService
+class SearchItemService
 {
     /**
      * The site URI for search requests.
@@ -22,11 +22,9 @@ class SearchItemService extends BaseService
      * Create a new search item service instance.
      *
      * @param MarketplaceEnum $region The marketplace region
-     * @param ApiClient $client The HTTP client
      */
-    public function __construct(MarketplaceEnum $region, ApiClient $client)
+    public function __construct(MarketplaceEnum $region)
     {
-        parent::__construct($client);
         $this->siteUri = "sites/{$region->value}/search";
     }
 
@@ -40,7 +38,10 @@ class SearchItemService extends BaseService
      */
     public function byQuery(string $value, int $offset = 0): array
     {
-        return $this->request('GET', $this->siteUri, ['q' => $value, 'offset' => $offset]);
+        return ApiRequest::get($this->siteUri)
+            ->withQuery(['q' => $value, 'offset' => $offset])
+            ->send()
+            ->json();
     }
 
     /**
@@ -52,7 +53,10 @@ class SearchItemService extends BaseService
      */
     public function byCategory(string $categoryId): array
     {
-        return $this->request('GET', $this->siteUri, ['category' => $categoryId]);
+        return ApiRequest::get($this->siteUri)
+            ->withQuery(['category' => $categoryId])
+            ->send()
+            ->json();
     }
 
     /**
@@ -64,7 +68,10 @@ class SearchItemService extends BaseService
      */
     public function byNickname(string $nickname): array
     {
-        return $this->request('GET', $this->siteUri, ['nickname' => $nickname]);
+        return ApiRequest::get($this->siteUri)
+            ->withQuery(['nickname' => $nickname])
+            ->send()
+            ->json();
     }
 
     /**
@@ -77,11 +84,16 @@ class SearchItemService extends BaseService
      */
     public function bySeller(int $sellerId, ?string $categoryId = null): array
     {
-        $value = ['seller_id' => $sellerId];
+        $query = ['seller_id' => $sellerId];
+        
         if ($categoryId) {
-            $value['category'] = $categoryId;
+            $query['category'] = $categoryId;
         }
-        return $this->request('GET', $this->siteUri, $value);
+
+        return ApiRequest::get($this->siteUri)
+            ->withQuery($query)
+            ->send()
+            ->json();
     }
 
     /**
@@ -94,8 +106,12 @@ class SearchItemService extends BaseService
      */
     public function byUserItems(int $userId, bool $scan = false): array
     {
-        $value = $scan ? ['search_type' => 'scan'] : [];
-        return $this->request('GET', "users/{$userId}/items/search", $value);
+        $query = $scan ? ['search_type' => 'scan'] : [];
+
+        return ApiRequest::get("users/{$userId}/items/search")
+            ->withQuery($query)
+            ->send()
+            ->json();
     }
 
     /**
@@ -108,11 +124,16 @@ class SearchItemService extends BaseService
      */
     public function multiGetItems(array $itemIds, array $attributes = []): array
     {
-        $value = ['ids' => implode(',', $itemIds)];
+        $query = ['ids' => implode(',', $itemIds)];
+        
         if (!empty($attributes)) {
-            $value['attributes'] = implode(',', $attributes);
+            $query['attributes'] = implode(',', $attributes);
         }
-        return $this->request('GET', 'items', $value);
+
+        return ApiRequest::get('items')
+            ->withQuery($query)
+            ->send()
+            ->json();
     }
 
     /**
@@ -124,6 +145,9 @@ class SearchItemService extends BaseService
      */
     public function multiGetUsers(array $userIds): array
     {
-        return $this->request('GET', 'users', ['ids' => implode(',', $userIds)]);
+        return ApiRequest::get('users')
+            ->withQuery(['ids' => implode(',', $userIds)])
+            ->send()
+            ->json();
     }
 }

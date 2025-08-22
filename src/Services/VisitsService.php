@@ -3,22 +3,13 @@
 namespace Zdearo\Meli\Services;
 
 use Zdearo\Meli\Exceptions\ApiException;
-use Zdearo\Meli\Support\ApiClient;
+use Zdearo\Meli\Support\ApiRequest;
 
 /**
  * Service for retrieving visit statistics from the Mercado Libre API.
  */
-class VisitsService extends BaseService
+class VisitsService
 {
-    /**
-     * Create a new visits service instance.
-     *
-     * @param ApiClient $client The HTTP client
-     */
-    public function __construct(ApiClient $client)
-    {
-        parent::__construct($client);
-    }
 
     /**
      * Get total visits for a user's items within a date range.
@@ -31,11 +22,13 @@ class VisitsService extends BaseService
      */
     public function totalByUser(int $userId, string $dateFrom, string $dateTo): array
     {
-        $uri = "users/{$userId}/items_visits";
-        return $this->request('GET', $uri, [
-            'date_from' => $dateFrom,
-            'date_to'   => $dateTo,
-        ]);
+        return ApiRequest::get("users/{$userId}/items_visits")
+            ->withQuery([
+                'date_from' => $dateFrom,
+                'date_to'   => $dateTo,
+            ])
+            ->send()
+            ->json();
     }
 
     /**
@@ -47,8 +40,10 @@ class VisitsService extends BaseService
      */
     public function totalByItem(string $itemId): array
     {
-        $uri = "visits/items";
-        return $this->request('GET', $uri, ['ids' => $itemId]);
+        return ApiRequest::get('visits/items')
+            ->withQuery(['ids' => $itemId])
+            ->send()
+            ->json();
     }
 
     /**
@@ -62,12 +57,14 @@ class VisitsService extends BaseService
      */
     public function totalByItemsDateRange(array $itemIds, string $dateFrom, string $dateTo): array
     {
-        $uri = "items/visits";
-        return $this->request('GET', $uri, [
-            'ids'       => implode(',', $itemIds),
-            'date_from' => $dateFrom,
-            'date_to'   => $dateTo,
-        ]);
+        return ApiRequest::get('items/visits')
+            ->withQuery([
+                'ids'       => implode(',', $itemIds),
+                'date_from' => $dateFrom,
+                'date_to'   => $dateTo,
+            ])
+            ->send()
+            ->json();
     }
 
     /**
@@ -82,7 +79,6 @@ class VisitsService extends BaseService
      */
     public function visitsByUserTimeWindow(int $userId, int $last, string $unit, ?string $ending = null): array
     {
-        $uri = "users/{$userId}/items_visits/time_window";
         $params = [
             'last' => $last,
             'unit' => $unit,
@@ -92,7 +88,10 @@ class VisitsService extends BaseService
             $params['ending'] = $ending;
         }
 
-        return $this->request('GET', $uri, $params);
+        return ApiRequest::get("users/{$userId}/items_visits/time_window")
+            ->withQuery($params)
+            ->send()
+            ->json();
     }
 
     /**
@@ -107,7 +106,6 @@ class VisitsService extends BaseService
      */
     public function visitsByItemTimeWindow(string $itemId, int $last, string $unit, ?string $ending = null): array
     {
-        $uri = "items/{$itemId}/visits/time_window";
         $params = [
             'last' => $last,
             'unit' => $unit,
@@ -117,6 +115,9 @@ class VisitsService extends BaseService
             $params['ending'] = $ending;
         }
 
-        return $this->request('GET', $uri, $params);
+        return ApiRequest::get("items/{$itemId}/visits/time_window")
+            ->withQuery($params)
+            ->send()
+            ->json();
     }
 }

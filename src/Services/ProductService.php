@@ -3,30 +3,13 @@
 namespace Zdearo\Meli\Services;
 
 use Zdearo\Meli\Exceptions\ApiException;
-use Zdearo\Meli\Support\ApiClient;
+use Zdearo\Meli\Support\ApiRequest;
 
 /**
  * Service for managing products in the Mercado Libre API.
  */
-class ProductService extends BaseService
+class ProductService
 {
-    /**
-     * The URI for product requests.
-     *
-     * @var string
-     */
-    private string $uri = 'items';
-
-    /**
-     * Create a new product service instance.
-     *
-     * @param ApiClient $client The HTTP client
-     */
-    public function __construct(ApiClient $client)
-    {
-        parent::__construct($client);
-    }
-
     /**
      * Create a new product.
      *
@@ -36,7 +19,10 @@ class ProductService extends BaseService
      */
     public function create(array $productData): array
     {
-        return $this->request('POST', $this->uri, $productData);
+        return ApiRequest::post('items')
+            ->withBody($productData)
+            ->send()
+            ->json();
     }
 
     /**
@@ -48,7 +34,9 @@ class ProductService extends BaseService
      */
     public function get(string $itemId): array
     {
-        return $this->request('GET', "{$this->uri}/{$itemId}");
+        return ApiRequest::get("items/{$itemId}")
+            ->send()
+            ->json();
     }
 
     /**
@@ -61,7 +49,10 @@ class ProductService extends BaseService
      */
     public function update(string $itemId, array $updateData): array
     {
-        return $this->request('PUT', "{$this->uri}/{$itemId}", $updateData);
+        return ApiRequest::put("items/{$itemId}")
+            ->withBody($updateData)
+            ->send()
+            ->json();
     }
 
     /**
@@ -74,6 +65,9 @@ class ProductService extends BaseService
      */
     public function changeStatus(string $itemId, string $status): array
     {
-        return $this->request('PUT', "{$this->uri}/{$itemId}", ['status' => $status]);
+        return ApiRequest::put("items/{$itemId}")
+            ->withBody(['status' => $status])
+            ->send()
+            ->json();
     }
 }
