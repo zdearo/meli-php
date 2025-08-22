@@ -4,7 +4,7 @@ namespace Zdearo\Meli\Services;
 
 use Zdearo\Meli\Enums\MarketplaceEnum;
 use Zdearo\Meli\Exceptions\ApiException;
-use Zdearo\Meli\Http\MeliClient;
+use Zdearo\Meli\Support\ApiClient;
 
 /**
  * Service for searching items in the Mercado Libre API.
@@ -22,9 +22,9 @@ class SearchItemService extends BaseService
      * Create a new search item service instance.
      *
      * @param MarketplaceEnum $region The marketplace region
-     * @param MeliClient $client The HTTP client
+     * @param ApiClient $client The HTTP client
      */
-    public function __construct(MarketplaceEnum $region, MeliClient $client)
+    public function __construct(MarketplaceEnum $region, ApiClient $client)
     {
         parent::__construct($client);
         $this->siteUri = "sites/{$region->value}/search";

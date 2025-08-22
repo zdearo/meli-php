@@ -3,7 +3,7 @@
 namespace Zdearo\Meli\Services;
 
 use Zdearo\Meli\Exceptions\ApiException;
-use Zdearo\Meli\Http\MeliClient;
+use Zdearo\Meli\Support\ApiClient;
 
 /**
  * Service for retrieving visit statistics from the Mercado Libre API.
@@ -13,9 +13,9 @@ class VisitsService extends BaseService
     /**
      * Create a new visits service instance.
      *
-     * @param MeliClient $client The HTTP client
+     * @param ApiClient $client The HTTP client
      */
-    public function __construct(MeliClient $client)
+    public function __construct(ApiClient $client)
     {
         parent::__construct($client);
     }

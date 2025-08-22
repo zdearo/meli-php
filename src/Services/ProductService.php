@@ -3,7 +3,7 @@
 namespace Zdearo\Meli\Services;
 
 use Zdearo\Meli\Exceptions\ApiException;
-use Zdearo\Meli\Http\MeliClient;
+use Zdearo\Meli\Support\ApiClient;
 
 /**
  * Service for managing products in the Mercado Libre API.
@@ -20,9 +20,9 @@ class ProductService extends BaseService
     /**
      * Create a new product service instance.
      *
-     * @param MeliClient $client The HTTP client
+     * @param ApiClient $client The HTTP client
      */
-    public function __construct(MeliClient $client)
+    public function __construct(ApiClient $client)
     {
         parent::__construct($client);
     }
