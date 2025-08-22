@@ -16,7 +16,7 @@ class MeliServiceProvider extends ServiceProvider
             __DIR__.'/../../config/meli.php', 'meli'
         );
 
-        $this->app->singleton('meli.client', function ($app) {
+        $this->app->singleton('meli', function ($app) {
             return new MeliApiClient;
         });
     }

@@ -4,6 +4,7 @@ namespace Zdearo\Meli\Support;
 
 use Illuminate\Http\Client\Response;
 use Zdearo\Meli\Enums\HttpMethod;
+use Zdearo\Meli\Facades\Meli;
 
 class ApiRequest
 {
@@ -13,18 +14,14 @@ class ApiRequest
 
     protected array $body = [];
 
-    protected ApiClient $client;
-
     public function __construct(
         protected HttpMethod $method = HttpMethod::GET,
         protected string $uri = ''
-    ) {
-        $this->client = app(ApiClient::class);
-    }
+    ) {}
 
     public function send(): Response
     {
-        return $this->client->send($this);
+        return Meli::send($this);
     }
 
     public function withQuery(array $query): ApiRequest

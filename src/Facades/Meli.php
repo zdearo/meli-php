@@ -18,6 +18,6 @@ class Meli extends Facade
      */
     protected static function getFacadeAccessor(): string
     {
-        return 'meli.client';
+        return 'meli';
     }
 }
