@@ -1,6 +1,6 @@
 {
     "name": "zdearo/meli-php",
-    "description": "A simple and efficient PHP SDK for integrating with the Mercado Libre API, providing methods for authentication, product listing, orders, and other essential operations.",
+    "description": "A Laravel-focused PHP SDK for integrating with the Mercado Libre API. Provides modern Laravel features like Facades, Service Providers, and HTTP Client integration.",
     "type": "library",
     "license": "MIT",
     "autoload": {
@@ -21,12 +21,12 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^8.0",
-        "guzzlehttp/guzzle": "7.9",
-        "ext-json": "*"
+        "php": "^8.1",
+        "illuminate/support": "^9.0|^10.0|^11.0|^12.0",
+        "illuminate/http": "^9.0|^10.0|^11.0|^12.0"
     },
     "require-dev": {
-        "laravel/pint": "^1.20",
+        "laravel/pint": "^1.24",
         "pestphp/pest": "^2.0",
         "pestphp/pest-plugin-laravel": "^2.0",
         "mockery/mockery": "^1.5"
@@ -34,8 +34,11 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Zdearo\\Meli\\Providers\\MeliServiceProvider"
-            ]
+                "Zdearo\\Meli\\MeliServiceProvider"
+            ],
+            "aliases": {
+                "Meli": "Zdearo\\Meli\\Facades\\Meli"
+            }
         }
     },
     "config": {

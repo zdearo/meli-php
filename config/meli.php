@@ -11,14 +11,16 @@ return [
     |
     */
 
+    'base_url' => env('MELI_BASE_URL', 'https://api.mercadolibre.com/'),
+
     /*
     |--------------------------------------------------------------------------
     | Region
     |--------------------------------------------------------------------------
     |
     | The region to use for the Mercado Libre API. Available options are:
-    | ARGENTINA, BOLIVIA, BRASIL, CHILE, COLOMBIA, COSTA_RICA, CUBA, 
-    | DOMINICANA, ECUADOR, EL_SALVADOR, GUATEMALA, HONDURAS, MEXICO, 
+    | ARGENTINA, BOLIVIA, BRASIL, CHILE, COLOMBIA, COSTA_RICA, CUBA,
+    | DOMINICANA, ECUADOR, EL_SALVADOR, GUATEMALA, HONDURAS, MEXICO,
     | NICARAGUA, PANAMA, PARAGUAY, PERU, URUGUAY, VENEZUELA
     |
     */
@@ -67,11 +69,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Timeout
+    | Auth Domain
     |--------------------------------------------------------------------------
     |
-    | The timeout for API requests in seconds.
+    | The authentication domain for the OAuth flow. This varies by region:
+    | - Brasil: mercadolibre.com.br
+    | - Argentina: mercadolibre.com.ar
+    | - Mexico: mercadolibre.com.mx
+    | - Colombia: mercadolibre.com.co
+    | - Chile: mercadolibre.cl
+    | - Peru: mercadolibre.com.pe
+    | - Uruguay: mercadolibre.com.uy
+    | - Venezuela: mercadolibre.com.ve
+    | - Ecuador: mercadolibre.com.ec
+    | - Costa Rica: mercadolibre.co.cr
+    | - Panama: mercadolibre.com.pa
+    | - Bolivia: mercadolibre.com.bo
+    | - Paraguay: mercadolibre.com.py
+    | - Guatemala: mercadolibre.com.gt
+    | - Nicaragua: mercadolibre.com.ni
+    | - Honduras: mercadolibre.com.hn
+    | - El Salvador: mercadolibre.com.sv
+    | - Dominicana: mercadolibre.com.do
+    | - Cuba: mercadolibre.com.cu
     |
     */
-    'timeout' => env('MELI_TIMEOUT', 10.0),
+    'auth_domain' => env('MELI_AUTH_DOMAIN', 'mercadolibre.com.br'),
 ];

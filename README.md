@@ -1,259 +1,144 @@
-# Mercado Libre PHP SDK
+# Mercado Libre Laravel SDK
 
-A simple and efficient PHP SDK for integrating with the Mercado Libre API, providing methods for authentication, product listing, orders, and other essential operations.
+SDK Laravel para integração com a API do Mercado Libre. Fornece uma interface limpa e moderna usando recursos nativos do Laravel.
 
-## Requirements
+## Requisitos
 
-- PHP 8.0 or higher
-- GuzzleHTTP 7.9
-- ext-json
+- PHP 8.1+
+- Laravel 9.0+
 
-## Installation
-
-You can install the package via composer:
+## Instalação
 
 ```bash
 composer require zdearo/meli-php
 ```
 
-## Usage
+O pacote será descoberto automaticamente pelo Laravel.
 
-### Basic Usage
+## Configuração
 
-```php
-use Zdearo\Meli\Meli;
-
-// Initialize the SDK with your region and API token
-$meli = new Meli('BRASIL', 'your-api-token');
-
-// Search for items
-$results = $meli->searchItems()->byQuery('smartphone');
-
-// Get a specific item
-$item = $meli->products()->get('MLB123456789');
-
-// Create a new item
-$newItem = $meli->products()->create([
-    'title' => 'Item title',
-    'category_id' => 'MLB123',
-    'price' => 100,
-    'currency_id' => 'BRL',
-    'available_quantity' => 10,
-    'buying_mode' => 'buy_it_now',
-    'listing_type_id' => 'gold_special',
-    'condition' => 'new',
-    'description' => 'Item description',
-    'video_id' => 'youtube_video_id',
-    'warranty' => '12 months',
-    'pictures' => [
-        ['source' => 'http://example.com/image.jpg'],
-    ],
-]);
-```
-
-### Authentication
-
-```php
-use Zdearo\Meli\Meli;
-
-$meli = new Meli('BRASIL');
-
-// Get the authorization URL
-$authUrl = $meli->auth()->getAuthUrl(
-    'https://your-app.com/callback',
-    'your-client-id',
-    'your-state'
-);
-
-// Redirect the user to the authorization URL
-header('Location: ' . $authUrl);
-exit;
-
-// In your callback route, get the token
-$token = $meli->auth()->getToken(
-    'your-client-id',
-    'your-client-secret',
-    $_GET['code'],
-    'https://your-app.com/callback'
-);
-
-// Store the token for future use
-$accessToken = $token['access_token'];
-$refreshToken = $token['refresh_token'];
-
-// When the token expires, refresh it
-$newToken = $meli->auth()->refreshToken(
-    'your-client-id',
-    'your-client-secret',
-    $refreshToken
-);
-```
-
-### Laravel Integration
-
-This package includes Laravel integration. After installing the package, Laravel will automatically discover and register the service provider.
-
-#### Configuration
-
-Publish the configuration file:
+Publique o arquivo de configuração:
 
 ```bash
 php artisan vendor:publish --tag=meli-config
 ```
 
-This will create a `config/meli.php` file where you can configure the SDK:
+Configure as variáveis no seu `.env`:
 
-```php
-// config/meli.php
-return [
-    'region' => env('MELI_REGION', 'BRASIL'),
-    'api_token' => env('MELI_API_TOKEN', ''),
-    'client_id' => env('MELI_CLIENT_ID', ''),
-    'client_secret' => env('MELI_CLIENT_SECRET', ''),
-    'redirect_uri' => env('MELI_REDIRECT_URI', ''),
-    'timeout' => env('MELI_TIMEOUT', 10.0),
-];
-```
-
-Add these variables to your `.env` file:
-
-```
+```env
+MELI_BASE_URL="https://api.mercadolibre.com/"
 MELI_REGION=BRASIL
 MELI_API_TOKEN=your-api-token
 MELI_CLIENT_ID=your-client-id
 MELI_CLIENT_SECRET=your-client-secret
 MELI_REDIRECT_URI=https://your-app.com/callback
-MELI_TIMEOUT=10.0
+MELI_AUTH_DOMAIN=mercadolibre.com.br
 ```
 
-#### Usage in Laravel
+## Uso
 
-The SDK is automatically registered in the service container, so you can inject it into your controllers or other classes:
+### Usando a Facade (Recomendado)
+
+A forma mais simples é usar a Facade `Meli`:
 
 ```php
-use Zdearo\Meli\Meli;
+use Zdearo\Meli\Facades\Meli;
+
+// Autenticação
+$authUrl = Meli::getAuthUrl();
+$token = Meli::auth()->getToken($clientId, $clientSecret, $code, $redirectUri);
+$newToken = Meli::auth()->refreshToken($clientId, $clientSecret, $refreshToken);
+
+// Produtos
+$produto = Meli::products()->get('MLB123456789');
+$novoProduto = Meli::products()->create([
+    'title' => 'Produto Teste',
+    'category_id' => 'MLB1055',
+    'price' => 99.99,
+    'currency_id' => 'BRL',
+    'available_quantity' => 10,
+    'condition' => 'new'
+]);
+Meli::products()->update('MLB123456789', ['price' => 89.99]);
+Meli::products()->changeStatus('MLB123456789', 'paused');
+
+// Busca
+$resultados = Meli::searchItem()->byQuery('smartphone samsung');
+$resultados = Meli::searchItem()->byCategory('MLB1055');
+$resultados = Meli::searchItem()->bySeller(123456789);
+$itens = Meli::searchItem()->byUserItems(123456789);
+$itens = Meli::searchItem()->multiGetItems(['MLB123', 'MLB456']);
+
+// Visitas
+$visitas = Meli::visits()->totalByUser(123456789, '2024-01-01', '2024-12-31');
+$visitas = Meli::visits()->totalByItem('MLB123456789');
+$visitas = Meli::visits()->visitsByUserTimeWindow(123456789, 30, 'day');
+```
+
+### Usando Services Diretos
+
+Você também pode usar os services diretamente:
+
+```php
+use Zdearo\Meli\Services\{AuthService, ProductService, SearchItemService, VisitsService};
+
+// Com injeção de dependência
+$produto = app(ProductService::class)->get('MLB123456789');
+$resultados = app(SearchItemService::class)->byQuery('smartphone');
+```
+
+## Exemplo em Controllers
+
+```php
+use Zdearo\Meli\Facades\Meli;
 
 class ProductController extends Controller
 {
-    protected $meli;
-
-    public function __construct(Meli $meli)
+    public function show(string $itemId)
     {
-        $this->meli = $meli;
+        $product = Meli::products()->get($itemId);
+        return view('products.show', compact('product'));
     }
 
     public function search(Request $request)
     {
-        $query = $request->input('q');
-        $results = $this->meli->searchItems()->byQuery($query);
+        $results = Meli::search()->byQuery($request->q);
+        return view('products.search', compact('results'));
+    }
 
-        return view('products.search', ['results' => $results]);
+    public function auth()
+    {
+        return redirect(Meli::getAuthUrl());
+    }
+
+    public function callback(Request $request)
+    {
+        $token = Meli::auth()->getToken(
+            config('meli.client_id'),
+            config('meli.client_secret'),
+            $request->code,
+            config('meli.redirect_uri')
+        );
+        
+        session(['meli_token' => $token]);
+        return redirect('/dashboard');
     }
 }
 ```
 
-## Available Services
-
-### Auth Service
-
-- `getAuthUrl(string $redirectUri, string $clientId, string $state): string`
-- `getToken(string $clientId, string $clientSecret, string $code, string $redirectUri): array`
-- `refreshToken(string $clientId, string $clientSecret, string $refreshToken): array`
-
-### Search Item Service
-
-- `byQuery(string $value): array`
-- `byCategory(string $categoryId): array`
-- `byNickname(string $nickname): array`
-- `bySeller(int $sellerId, ?string $categoryId = null): array`
-- `byUserItems(int $userId, bool $scan = false): array`
-- `multiGetItems(array $itemIds, array $attributes = []): array`
-- `multiGetUsers(array $userIds): array`
-
-### Product Service
-
-- `create(array $productData): array`
-- `get(string $itemId): array`
-- `update(string $itemId, array $updateData): array`
-- `changeStatus(string $itemId, string $status): array`
-
-### Visits Service
-
-- `totalByUser(int $userId, string $dateFrom, string $dateTo): array`
-- `totalByItem(string $itemId): array`
-- `totalByItemsDateRange(array $itemIds, string $dateFrom, string $dateTo): array`
-- `visitsByUserTimeWindow(int $userId, int $last, string $unit, ?string $ending = null): array`
-- `visitsByItemTimeWindow(string $itemId, int $last, string $unit, ?string $ending = null): array`
-
-## Error Handling
-
-The SDK throws `ApiException` when an API request fails. You can catch this exception to handle errors:
+## Tratamento de Erros
 
 ```php
-use Zdearo\Meli\Exceptions\ApiException;
+use Illuminate\Http\Client\RequestException;
+use Zdearo\Meli\Facades\Meli;
 
 try {
-    $item = $meli->products()->get('MLB123456789');
-} catch (ApiException $e) {
-    $statusCode = $e->getStatusCode();
-    $message = $e->getMessage();
-
-    // Handle the error
+    $product = Meli::products()->get('MLB123456789');
+} catch (RequestException $e) {
+    Log::error('Erro API Meli: ' . $e->getMessage());
 }
 ```
 
-## Testing
+## Licença
 
-This package uses [Pest PHP](https://pestphp.com/) for testing. To run the tests:
-
-```bash
-composer install
-./vendor/bin/pest
-```
-
-### Test Structure
-
-The tests are organized into the following directories:
-
-- `tests/Unit`: Unit tests for individual components
-  - `tests/Unit/Exceptions`: Tests for exception classes
-  - `tests/Unit/Http`: Tests for HTTP-related classes
-  - `tests/Unit/Services`: Tests for service classes
-
-### Writing Tests
-
-If you want to contribute to this package, please make sure to add tests for your changes. The tests use mocking to avoid making actual API calls, ensuring they can run in isolation.
-
-Example of a service test:
-
-```php
-test('can search items by query', function () {
-    // Create a mock response
-    $responseData = [
-        'results' => [
-            ['id' => 'MLB123', 'title' => 'Item 1'],
-        ],
-    ];
-
-    $mock = new MockHandler([
-        new Response(200, [], json_encode($responseData)),
-    ]);
-
-    $handlerStack = HandlerStack::create($mock);
-    $guzzleClient = new Client(['handler' => $handlerStack]);
-
-    // Mock the MeliClient to return our mocked Guzzle client
-    $meliClient = m::mock(MeliClient::class);
-    $meliClient->shouldReceive('getClient')->andReturn($guzzleClient);
-
-    $service = new SearchItemService(MarketplaceEnum::BRASIL, $meliClient);
-    $result = $service->byQuery('smartphone');
-
-    expect($result)->toBeArray();
-    expect($result)->toHaveKey('results');
-});
-```
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE) for more information.
+MIT License. Veja [LICENSE](LICENSE) para mais detalhes.

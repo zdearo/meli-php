@@ -4,126 +4,155 @@ namespace Zdearo\Meli\Services;
 
 use Zdearo\Meli\Enums\MarketplaceEnum;
 use Zdearo\Meli\Exceptions\ApiException;
-use Zdearo\Meli\Http\MeliClient;
+use Zdearo\Meli\Support\ApiRequest;
 
 /**
  * Service for searching items in the Mercado Libre API.
  */
-class SearchItemService extends BaseService
+class SearchItemService
 {
     /**
      * The site URI for search requests.
-     *
-     * @var string
      */
     private string $siteUri;
 
     /**
      * Create a new search item service instance.
      *
-     * @param MarketplaceEnum $region The marketplace region
-     * @param MeliClient $client The HTTP client
+     * @param  MarketplaceEnum  $region  The marketplace region
      */
-    public function __construct(MarketplaceEnum $region, MeliClient $client)
+    public function __construct(MarketplaceEnum $region)
     {
-        parent::__construct($client);
         $this->siteUri = "sites/{$region->value}/search";
     }
 
     /**
      * Search items by query.
      *
-     * @param string $value The search query
-     * @param int $offset The offset for pagination (optional)
+     * @param  string  $value  The search query
+     * @param  int  $offset  The offset for pagination (optional)
      * @return array<string, mixed> The search results
+     *
      * @throws ApiException If the request fails
      */
     public function byQuery(string $value, int $offset = 0): array
     {
-        return $this->request('GET', $this->siteUri, ['q' => $value, 'offset' => $offset]);
+        return ApiRequest::get($this->siteUri)
+            ->withQuery(['q' => $value, 'offset' => $offset])
+            ->send()
+            ->json();
     }
 
     /**
      * Search items by category.
      *
-     * @param string $categoryId The category ID
+     * @param  string  $categoryId  The category ID
      * @return array<string, mixed> The search results
+     *
      * @throws ApiException If the request fails
      */
     public function byCategory(string $categoryId): array
     {
-        return $this->request('GET', $this->siteUri, ['category' => $categoryId]);
+        return ApiRequest::get($this->siteUri)
+            ->withQuery(['category' => $categoryId])
+            ->send()
+            ->json();
     }
 
     /**
      * Search items by seller nickname.
      *
-     * @param string $nickname The seller nickname
+     * @param  string  $nickname  The seller nickname
      * @return array<string, mixed> The search results
+     *
      * @throws ApiException If the request fails
      */
     public function byNickname(string $nickname): array
     {
-        return $this->request('GET', $this->siteUri, ['nickname' => $nickname]);
+        return ApiRequest::get($this->siteUri)
+            ->withQuery(['nickname' => $nickname])
+            ->send()
+            ->json();
     }
 
     /**
      * Search items by seller ID.
      *
-     * @param int $sellerId The seller ID
-     * @param string|null $categoryId The category ID (optional)
+     * @param  int  $sellerId  The seller ID
+     * @param  string|null  $categoryId  The category ID (optional)
      * @return array<string, mixed> The search results
+     *
      * @throws ApiException If the request fails
      */
     public function bySeller(int $sellerId, ?string $categoryId = null): array
     {
-        $value = ['seller_id' => $sellerId];
+        $query = ['seller_id' => $sellerId];
+
         if ($categoryId) {
-            $value['category'] = $categoryId;
+            $query['category'] = $categoryId;
         }
-        return $this->request('GET', $this->siteUri, $value);
+
+        return ApiRequest::get($this->siteUri)
+            ->withQuery($query)
+            ->send()
+            ->json();
     }
 
     /**
      * Search items by user ID.
      *
-     * @param int $userId The user ID
-     * @param bool $scan Whether to use scan search type
+     * @param  int  $userId  The user ID
+     * @param  bool  $scan  Whether to use scan search type
      * @return array<string, mixed> The search results
+     *
      * @throws ApiException If the request fails
      */
     public function byUserItems(int $userId, bool $scan = false): array
     {
-        $value = $scan ? ['search_type' => 'scan'] : [];
-        return $this->request('GET', "users/{$userId}/items/search", $value);
+        $query = $scan ? ['search_type' => 'scan'] : [];
+
+        return ApiRequest::get("users/{$userId}/items/search")
+            ->withQuery($query)
+            ->send()
+            ->json();
     }
 
     /**
      * Get multiple items by their IDs.
      *
-     * @param array<int, string> $itemIds The item IDs
-     * @param array<int, string> $attributes The attributes to include (optional)
+     * @param  array<int, string>  $itemIds  The item IDs
+     * @param  array<int, string>  $attributes  The attributes to include (optional)
      * @return array<string, mixed> The items
+     *
      * @throws ApiException If the request fails
      */
     public function multiGetItems(array $itemIds, array $attributes = []): array
     {
-        $value = ['ids' => implode(',', $itemIds)];
-        if (!empty($attributes)) {
-            $value['attributes'] = implode(',', $attributes);
+        $query = ['ids' => implode(',', $itemIds)];
+
+        if (! empty($attributes)) {
+            $query['attributes'] = implode(',', $attributes);
         }
-        return $this->request('GET', 'items', $value);
+
+        return ApiRequest::get('items')
+            ->withQuery($query)
+            ->send()
+            ->json();
     }
 
     /**
      * Get multiple users by their IDs.
      *
-     * @param array<int, int> $userIds The user IDs
+     * @param  array<int, int>  $userIds  The user IDs
      * @return array<string, mixed> The users
+     *
      * @throws ApiException If the request fails
      */
     public function multiGetUsers(array $userIds): array
     {
-        return $this->request('GET', 'users', ['ids' => implode(',', $userIds)]);
+        return ApiRequest::get('users')
+            ->withQuery(['ids' => implode(',', $userIds)])
+            ->send()
+            ->json();
     }
 }
