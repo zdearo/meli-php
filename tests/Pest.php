@@ -11,7 +11,17 @@
 |
 */
 
-// uses(Tests\TestCase::class)->in('Feature');
+uses(\PHPUnit\Framework\TestCase::class)->in('Unit');
+
+/*
+|--------------------------------------------------------------------------
+| Functions
+|--------------------------------------------------------------------------
+|
+| Helper functions for tests
+|
+*/
+
 
 /*
 |--------------------------------------------------------------------------
@@ -38,13 +48,3 @@ expect()->extend('toBeOne', function () {
 | global functions to help you to reduce the number of lines of code in your test files.
 |
 */
-
-function createMeliClient(string $apiToken = '', float $timeout = 10.0)
-{
-    return new \Zdearo\Meli\Http\MeliClient($apiToken, $timeout);
-}
-
-function createMeli(string $region = 'BRASIL', string $apiToken = '', float $timeout = 10.0)
-{
-    return new \Zdearo\Meli\Meli($region, $apiToken, $timeout);
-}
