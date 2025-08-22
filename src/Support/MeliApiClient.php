@@ -3,6 +3,10 @@
 namespace Zdearo\Meli\Support;
 
 use Illuminate\Http\Client\PendingRequest;
+use Zdearo\Meli\Services\AuthService;
+use Zdearo\Meli\Services\ProductService;
+use Zdearo\Meli\Services\SearchItemService;
+use Zdearo\Meli\Services\VisitsService;
 
 class MeliApiClient extends ApiClient
 {
@@ -19,6 +23,26 @@ class MeliApiClient extends ApiClient
     public static function generateState(): string
     {
         return bin2hex(random_bytes(16));
+    }
+
+    public function auth(): AuthService
+    {
+        return app(AuthService::class);
+    }
+
+    public function products(): ProductService
+    {
+        return app(ProductService::class);
+    }
+
+    public function search(): SearchItemService
+    {
+        return app(SearchItemService::class);
+    }
+
+    public function visits(): VisitsService
+    {
+        return app(VisitsService::class);
     }
 
     protected function baseUrl(): string

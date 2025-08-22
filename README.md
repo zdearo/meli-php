@@ -37,46 +37,21 @@ MELI_AUTH_DOMAIN=mercadolibre.com.br
 
 ## Uso
 
-### AuthService
+### Usando a Facade (Recomendado)
 
-Gerencia autenticação OAuth:
-
-```php
-use Zdearo\Meli\Services\AuthService;
-
-// Gerar URL de autorização
-$authUrl = app(AuthService::class)->getAuthUrl();
-
-// Trocar código por token
-$token = app(AuthService::class)->getToken(
-    config('meli.client_id'),
-    config('meli.client_secret'), 
-    $code,
-    config('meli.redirect_uri')
-);
-
-// Renovar token
-$newToken = app(AuthService::class)->refreshToken(
-    config('meli.client_id'),
-    config('meli.client_secret'),
-    $refreshToken
-);
-```
-
-### ProductService
-
-Gerencia produtos:
+A forma mais simples é usar a Facade `Meli`:
 
 ```php
-use Zdearo\Meli\Services\ProductService;
+use Zdearo\Meli\Facades\Meli;
 
-$service = app(ProductService::class);
+// Autenticação
+$authUrl = Meli::getAuthUrl();
+$token = Meli::auth()->getToken($clientId, $clientSecret, $code, $redirectUri);
+$newToken = Meli::auth()->refreshToken($clientId, $clientSecret, $refreshToken);
 
-// Buscar produto
-$produto = $service->get('MLB123456789');
-
-// Criar produto
-$novoProduto = $service->create([
+// Produtos
+$produto = Meli::products()->get('MLB123456789');
+$novoProduto = Meli::products()->create([
     'title' => 'Produto Teste',
     'category_id' => 'MLB1055',
     'price' => 99.99,
@@ -84,96 +59,81 @@ $novoProduto = $service->create([
     'available_quantity' => 10,
     'condition' => 'new'
 ]);
+Meli::products()->update('MLB123456789', ['price' => 89.99]);
+Meli::products()->changeStatus('MLB123456789', 'paused');
 
-// Atualizar produto
-$service->update('MLB123456789', [
-    'price' => 89.99,
-    'available_quantity' => 5
-]);
+// Busca
+$resultados = Meli::search()->byQuery('smartphone samsung');
+$resultados = Meli::search()->byCategory('MLB1055');
+$resultados = Meli::search()->bySeller(123456789);
+$itens = Meli::search()->byUserItems(123456789);
+$itens = Meli::search()->multiGetItems(['MLB123', 'MLB456']);
 
-// Alterar status
-$service->changeStatus('MLB123456789', 'paused');
+// Visitas
+$visitas = Meli::visits()->totalByUser(123456789, '2024-01-01', '2024-12-31');
+$visitas = Meli::visits()->totalByItem('MLB123456789');
+$visitas = Meli::visits()->visitsByUserTimeWindow(123456789, 30, 'day');
 ```
 
-### SearchItemService
+### Usando Services Diretos
 
-Busca itens e usuários:
+Você também pode usar os services diretamente:
 
 ```php
-use Zdearo\Meli\Services\SearchItemService;
+use Zdearo\Meli\Services\{AuthService, ProductService, SearchItemService, VisitsService};
 
-$service = app(SearchItemService::class);
-
-// Buscar por query
-$resultados = $service->byQuery('smartphone samsung');
-
-// Buscar por categoria
-$resultados = $service->byCategory('MLB1055');
-
-// Buscar por vendedor
-$resultados = $service->bySeller(123456789);
-
-// Buscar itens do usuário
-$itens = $service->byUserItems(123456789);
-
-// Buscar múltiplos itens
-$itens = $service->multiGetItems(['MLB123', 'MLB456']);
+// Com injeção de dependência
+$produto = app(ProductService::class)->get('MLB123456789');
+$resultados = app(SearchItemService::class)->byQuery('smartphone');
 ```
 
-### VisitsService
-
-Estatísticas de visitas:
+## Exemplo em Controllers
 
 ```php
-use Zdearo\Meli\Services\VisitsService;
+use Zdearo\Meli\Facades\Meli;
 
-$service = app(VisitsService::class);
-
-// Visitas por usuário
-$visitas = $service->totalByUser(123456789, '2024-01-01', '2024-12-31');
-
-// Visitas por item
-$visitas = $service->totalByItem('MLB123456789');
-
-// Visitas em janela de tempo
-$visitas = $service->visitsByUserTimeWindow(123456789, 30, 'day');
-```
-
-## Injeção de Dependência
-
-Use injeção de dependência em seus controllers:
-
-```php
 class ProductController extends Controller
 {
-    public function __construct(
-        private ProductService $productService,
-        private SearchItemService $searchService
-    ) {}
-
     public function show(string $itemId)
     {
-        $product = $this->productService->get($itemId);
+        $product = Meli::products()->get($itemId);
         return view('products.show', compact('product'));
     }
 
     public function search(Request $request)
     {
-        $results = $this->searchService->byQuery($request->q);
+        $results = Meli::search()->byQuery($request->q);
         return view('products.search', compact('results'));
+    }
+
+    public function auth()
+    {
+        return redirect(Meli::getAuthUrl());
+    }
+
+    public function callback(Request $request)
+    {
+        $token = Meli::auth()->getToken(
+            config('meli.client_id'),
+            config('meli.client_secret'),
+            $request->code,
+            config('meli.redirect_uri')
+        );
+        
+        session(['meli_token' => $token]);
+        return redirect('/dashboard');
     }
 }
 ```
 
 ## Tratamento de Erros
 
-O SDK usa o HTTP Client do Laravel:
-
 ```php
 use Illuminate\Http\Client\RequestException;
+use Zdearo\Meli\Facades\Meli;
 
 try {
-    $product = $productService->get('MLB123456789');
+    $product = Meli::products()->get('MLB123456789');
 } catch (RequestException $e) {
     Log::error('Erro API Meli: ' . $e->getMessage());
 }
