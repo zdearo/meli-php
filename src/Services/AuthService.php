@@ -2,84 +2,100 @@
 
 namespace Zdearo\Meli\Services;
 
-use Zdearo\Meli\Enums\MarketplaceEnum;
+use Illuminate\Http\Client\Response;
+use InvalidArgumentException;
 use Zdearo\Meli\Exceptions\ApiException;
-use Zdearo\Meli\Http\MeliClient;
+use Zdearo\Meli\Support\ApiRequest;
 
 /**
  * Service for handling authentication with the Mercado Libre API.
  */
-class AuthService extends BaseService
+class AuthService
 {
-    /**
-     * The marketplace domain.
-     *
-     * @var string
-     */
-    private string $uri;
-
-    /**
-     * Create a new auth service instance.
-     *
-     * @param MarketplaceEnum $region The marketplace region
-     * @param MeliClient $client The HTTP client
-     */
-    public function __construct(MarketplaceEnum $region, MeliClient $client)
-    {
-        parent::__construct($client);
-        $this->uri = $region->domain();
-    }
-
-    /**
-     * Get the authorization URL for the OAuth flow.
-     *
-     * @param string $redirectUri The redirect URI after authorization
-     * @param string $clientId The client ID
-     * @param string $state A state parameter for security
-     * @return string The authorization URL
-     */
-    public function getAuthUrl(string $redirectUri, string $clientId, string $state): string
-    {
-        return "https://auth.{$this->uri}/authorization?response_type=code&client_id={$clientId}&redirect_uri={$redirectUri}&state={$state}";
-    }
-
     /**
      * Get an access token using an authorization code.
      *
-     * @param string $clientId The client ID
-     * @param string $clientSecret The client secret
      * @param string $code The authorization code
-     * @param string $redirectUri The redirect URI
-     * @return array<string, mixed> The token response
+     * @return Response The response (use ->json() to get array data)
      * @throws ApiException If the request fails
+     * @throws InvalidArgumentException If the required config is missing
      */
-    public function getToken(string $clientId, string $clientSecret, string $code, string $redirectUri): array
+    public function getToken(string $code): Response
     {
-        return $this->request('POST', 'https://api.mercadolibre.com/oauth/token', [
-            'grant_type'    => 'authorization_code',
-            'client_id'     => $clientId,
-            'client_secret' => $clientSecret,
-            'code'          => $code,
-            'redirect_uri'  => $redirectUri,
-        ]);
+        $this->validateConfig();
+
+        return ApiRequest::post('oauth/token')
+            ->withBody([
+                'grant_type'    => 'authorization_code',
+                'client_id'     => config('meli.client_id'),
+                'client_secret' => config('meli.client_secret'),
+                'code'          => $code,
+                'redirect_uri'  => config('meli.redirect_uri'),
+            ])
+            ->send();
     }
 
     /**
      * Refresh an access token using a refresh token.
      *
-     * @param string $clientId The client ID
-     * @param string $clientSecret The client secret
      * @param string $refreshToken The refresh token
-     * @return array<string, mixed> The token response
+     * @return Response The response (use ->json() to get array data)
      * @throws ApiException If the request fails
+     * @throws InvalidArgumentException If the required config is missing
      */
-    public function refreshToken(string $clientId, string $clientSecret, string $refreshToken): array
+    public function refreshToken(string $refreshToken): Response
     {
-        return $this->request('POST', 'https://api.mercadolibre.com/oauth/token', [
-            'grant_type'    => 'refresh_token',
-            'client_id'     => $clientId,
-            'client_secret' => $clientSecret,
-            'refresh_token' => $refreshToken,
-        ]);
+        $this->validateConfig();
+
+        return ApiRequest::post('oauth/token')
+            ->withBody([
+                'grant_type'    => 'refresh_token',
+                'client_id'     => config('meli.client_id'),
+                'client_secret' => config('meli.client_secret'),
+                'refresh_token' => $refreshToken,
+            ])
+            ->send();
+    }
+
+    /**
+     * Get token data as array.
+     *
+     * @param string $code The authorization code
+     * @return array<string, mixed> The token data
+     * @throws ApiException If the request fails
+     * @throws InvalidArgumentException If the required config is missing
+     */
+    public function getTokenData(string $code): array
+    {
+        return $this->getToken($code)->json();
+    }
+
+    /**
+     * Refresh token data as an array.
+     *
+     * @param string $refreshToken The refresh token
+     * @return array<string, mixed> The token data
+     * @throws ApiException If the request fails
+     * @throws InvalidArgumentException If the required config is missing
+     */
+    public function refreshTokenData(string $refreshToken): array
+    {
+        return $this->refreshToken($refreshToken)->json();
+    }
+
+    /**
+     * Validate required configuration.
+     *
+     * @throws InvalidArgumentException If the required config is missing
+     */
+    private function validateConfig(): void
+    {
+        $required = ['client_id', 'client_secret', 'redirect_uri'];
+        
+        foreach ($required as $key) {
+            if (empty(config("meli.{$key}"))) {
+                throw new InvalidArgumentException("Missing required config: meli.{$key}");
+            }
+        }
     }
 }
