@@ -18,7 +18,7 @@ class VisitsService
      * @param  string  $dateTo  The end date (format: YYYY-MM-DD)
      * @return array<string, mixed> The visit statistics
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function totalByUser(int $userId, string $dateFrom, string $dateTo): array
     {
@@ -37,7 +37,7 @@ class VisitsService
      * @param  string  $itemId  The item ID
      * @return array<string, mixed> The visit statistics
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function totalByItem(string $itemId): array
     {
@@ -55,7 +55,7 @@ class VisitsService
      * @param  string  $dateTo  The end date (format: YYYY-MM-DD)
      * @return array<string, mixed> The visit statistics
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function totalByItemsDateRange(array $itemIds, string $dateFrom, string $dateTo): array
     {
@@ -78,7 +78,7 @@ class VisitsService
      * @param  string|null  $ending  The end date (format: YYYY-MM-DD)
      * @return array<string, mixed> The visit statistics
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function visitsByUserTimeWindow(int $userId, int $last, string $unit, ?string $ending = null): array
     {
@@ -106,7 +106,7 @@ class VisitsService
      * @param  string|null  $ending  The end date (format: YYYY-MM-DD)
      * @return array<string, mixed> The visit statistics
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function visitsByItemTimeWindow(string $itemId, int $last, string $unit, ?string $ending = null): array
     {

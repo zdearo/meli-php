@@ -1,6 +1,6 @@
 <?php
 
-use Zdearo\Meli\Services\ProductService;
+use Zdearo\Meli\Services\OrderService;
 
 // Mock functions for testing
 if (! function_exists('app')) {
@@ -28,17 +28,23 @@ if (! function_exists('config')) {
     }
 }
 
-test('can create product service instance', function () {
-    $service = new ProductService;
+test('can create order service instance', function () {
+    $service = new OrderService;
 
-    expect($service)->toBeInstanceOf(ProductService::class);
+    expect($service)->toBeInstanceOf(OrderService::class);
 });
 
 test('service methods exist and are callable', function () {
-    $service = new ProductService;
+    $service = new OrderService;
 
-    expect(method_exists($service, 'create'))->toBeTrue();
     expect(method_exists($service, 'get'))->toBeTrue();
-    expect(method_exists($service, 'update'))->toBeTrue();
-    expect(method_exists($service, 'changeStatus'))->toBeTrue();
+    expect(method_exists($service, 'search'))->toBeTrue();
+    expect(method_exists($service, 'getBySeller'))->toBeTrue();
+    expect(method_exists($service, 'getByBuyer'))->toBeTrue();
+    expect(method_exists($service, 'getByStatus'))->toBeTrue();
+    expect(method_exists($service, 'getByDateRange'))->toBeTrue();
+    expect(method_exists($service, 'getByTags'))->toBeTrue();
+    expect(method_exists($service, 'getProductInfo'))->toBeTrue();
+    expect(method_exists($service, 'getDiscounts'))->toBeTrue();
+    expect(method_exists($service, 'getPaidOrders'))->toBeTrue();
 });

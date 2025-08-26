@@ -33,7 +33,7 @@ class SearchItemService
      * @param  int  $offset  The offset for pagination (optional)
      * @return array<string, mixed> The search results
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function byQuery(string $value, int $offset = 0): array
     {
@@ -49,7 +49,7 @@ class SearchItemService
      * @param  string  $categoryId  The category ID
      * @return array<string, mixed> The search results
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function byCategory(string $categoryId): array
     {
@@ -65,7 +65,7 @@ class SearchItemService
      * @param  string  $nickname  The seller nickname
      * @return array<string, mixed> The search results
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function byNickname(string $nickname): array
     {
@@ -82,7 +82,7 @@ class SearchItemService
      * @param  string|null  $categoryId  The category ID (optional)
      * @return array<string, mixed> The search results
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function bySeller(int $sellerId, ?string $categoryId = null): array
     {
@@ -105,7 +105,7 @@ class SearchItemService
      * @param  bool  $scan  Whether to use scan search type
      * @return array<string, mixed> The search results
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function byUserItems(int $userId, bool $scan = false): array
     {
@@ -124,7 +124,7 @@ class SearchItemService
      * @param  array<int, string>  $attributes  The attributes to include (optional)
      * @return array<string, mixed> The items
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function multiGetItems(array $itemIds, array $attributes = []): array
     {
@@ -146,7 +146,7 @@ class SearchItemService
      * @param  array<int, int>  $userIds  The user IDs
      * @return array<string, mixed> The users
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function multiGetUsers(array $userIds): array
     {

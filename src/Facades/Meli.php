@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Zdearo\Meli\Services\ProductService products()
  * @method static \Zdearo\Meli\Services\SearchItemService searchItem()
  * @method static \Zdearo\Meli\Services\VisitsService visits()
+ * @method static \Zdearo\Meli\Services\UserService users()
+ * @method static \Zdearo\Meli\Services\CategoryService categories()
+ * @method static \Zdearo\Meli\Services\OrderService orders()
+ * @method static \Zdearo\Meli\Services\QuestionService questions()
+ * @method static \Zdearo\Meli\Services\NotificationService notifications()
+ * @method static \Zdearo\Meli\Services\PaymentService payments()
  *
  * @see \Zdearo\Meli\Support\MeliApiClient
  */

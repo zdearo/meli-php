@@ -4,8 +4,14 @@ namespace Zdearo\Meli\Support;
 
 use Illuminate\Http\Client\PendingRequest;
 use Zdearo\Meli\Services\AuthService;
+use Zdearo\Meli\Services\CategoryService;
+use Zdearo\Meli\Services\NotificationService;
+use Zdearo\Meli\Services\OrderService;
+use Zdearo\Meli\Services\PaymentService;
 use Zdearo\Meli\Services\ProductService;
+use Zdearo\Meli\Services\QuestionService;
 use Zdearo\Meli\Services\SearchItemService;
+use Zdearo\Meli\Services\UserService;
 use Zdearo\Meli\Services\VisitsService;
 
 class MeliApiClient extends ApiClient
@@ -37,6 +43,36 @@ class MeliApiClient extends ApiClient
     public function visits(): VisitsService
     {
         return app(VisitsService::class);
+    }
+
+    public function users(): UserService
+    {
+        return app(UserService::class);
+    }
+
+    public function categories(): CategoryService
+    {
+        return app(CategoryService::class);
+    }
+
+    public function orders(): OrderService
+    {
+        return app(OrderService::class);
+    }
+
+    public function questions(): QuestionService
+    {
+        return app(QuestionService::class);
+    }
+
+    public function notifications(): NotificationService
+    {
+        return app(NotificationService::class);
+    }
+
+    public function payments(): PaymentService
+    {
+        return app(PaymentService::class);
     }
 
     protected function baseUrl(): string
