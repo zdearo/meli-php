@@ -15,7 +15,7 @@ class CategoryService
      *
      * @return array<string, mixed> The available sites
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getSites(): array
     {
@@ -30,7 +30,7 @@ class CategoryService
      * @param  string  $siteId  The site ID (e.g., MLB, MLA)
      * @return array<string, mixed> The categories
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getCategories(string $siteId): array
     {
@@ -45,7 +45,7 @@ class CategoryService
      * @param  string  $categoryId  The category ID
      * @return array<string, mixed> The category details
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function get(string $categoryId): array
     {
@@ -60,7 +60,7 @@ class CategoryService
      * @param  string  $categoryId  The category ID
      * @return array<string, mixed> The category attributes
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getAttributes(string $categoryId): array
     {
@@ -75,7 +75,7 @@ class CategoryService
      * @param  string  $siteId  The site ID
      * @return array<string, mixed> The listing exposures
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getListingExposures(string $siteId): array
     {
@@ -91,7 +91,7 @@ class CategoryService
      * @param  float  $price  The price to check
      * @return array<string, mixed> The listing prices
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getListingPrices(string $siteId, float $price): array
     {
@@ -109,9 +109,9 @@ class CategoryService
      * @param  int|null  $limit  Optional limit of results
      * @return array<string, mixed> The predicted categories
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function predictCategory(string $siteId, string $query, int $limit = null): array
+    public function predictCategory(string $siteId, string $query, ?int $limit = null): array
     {
         $request = ApiRequest::get("sites/{$siteId}/domain_discovery/search")
             ->withQuery(['q' => $query]);
@@ -129,7 +129,7 @@ class CategoryService
      * @param  string  $categoryId  The category ID
      * @return array<string, mixed> The promotion packs
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getClassifiedsPromotionPacks(string $categoryId): array
     {
@@ -144,7 +144,7 @@ class CategoryService
      * @param  string  $domainId  The domain ID
      * @return array<string, mixed> The technical specifications
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getDomainTechnicalSpecs(string $domainId): array
     {

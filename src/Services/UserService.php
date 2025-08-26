@@ -3,7 +3,6 @@
 namespace Zdearo\Meli\Services;
 
 use Illuminate\Http\Client\Response;
-use Zdearo\Meli\Exceptions\ApiException;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -17,7 +16,7 @@ class UserService
      * @param  int  $userId  The user ID
      * @return array<string, mixed> The user information
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function get(int $userId): array
     {
@@ -31,7 +30,7 @@ class UserService
      *
      * @return array<string, mixed> The authenticated user information
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function me(): array
     {
@@ -47,7 +46,7 @@ class UserService
      * @param  array<string, mixed>  $userData  The user data to update
      * @return array<string, mixed> The updated user information
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function update(int $userId, array $userData): array
     {
@@ -63,7 +62,7 @@ class UserService
      * @param  int  $userId  The user ID
      * @return array<string, mixed> The user addresses
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getAddresses(int $userId): array
     {
@@ -78,7 +77,7 @@ class UserService
      * @param  int  $userId  The user ID
      * @return array<string, mixed> The accepted payment methods
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getAcceptedPaymentMethods(int $userId): array
     {
@@ -93,7 +92,7 @@ class UserService
      * @param  int  $userId  The user ID
      * @return array<string, mixed> The user's brands
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getBrands(int $userId): array
     {
@@ -109,9 +108,9 @@ class UserService
      * @param  string|null  $categoryId  Optional category ID
      * @return array<string, mixed> The available listing types
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getAvailableListingTypes(int $userId, string $categoryId = null): array
+    public function getAvailableListingTypes(int $userId, ?string $categoryId = null): array
     {
         $endpoint = "users/{$userId}/available_listing_types";
         $request = ApiRequest::get($endpoint);
@@ -131,9 +130,9 @@ class UserService
      * @param  string|null  $categoryId  Optional category ID
      * @return array<string, mixed> The listing type availability
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getAvailableListingType(int $userId, string $listingTypeId, string $categoryId = null): array
+    public function getAvailableListingType(int $userId, string $listingTypeId, ?string $categoryId = null): array
     {
         $endpoint = "users/{$userId}/available_listing_type/{$listingTypeId}";
         $request = ApiRequest::get($endpoint);
@@ -151,7 +150,7 @@ class UserService
      * @param  int  $userId  The user ID
      * @return array<string, mixed> The promotion packs
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getClassifiedsPromotionPacks(int $userId): array
     {
@@ -167,7 +166,7 @@ class UserService
      * @param  array<string, mixed>  $packData  The promotion pack data
      * @return array<string, mixed> The created promotion pack
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function createClassifiedsPromotionPack(int $userId, array $packData): array
     {
@@ -185,7 +184,7 @@ class UserService
      * @param  string  $categoryId  The category ID
      * @return array<string, mixed> The availability information
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function checkListingAvailability(int $userId, string $listingType, string $categoryId): array
     {
@@ -202,7 +201,7 @@ class UserService
      * @param  int  $applicationId  The application ID
      * @return Response The response
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function revokeApplicationPermission(int $userId, int $applicationId): Response
     {

@@ -17,7 +17,7 @@ class NotificationService
      * @param  array<string, mixed>  $filters  Optional filters (topic, offset, limit)
      * @return array<string, mixed> The missed notifications
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getMissedFeeds(int $appId, array $filters = []): array
     {
@@ -37,7 +37,7 @@ class NotificationService
      * @param  array<string, mixed>  $filters  Optional filters (offset, limit)
      * @return array<string, mixed> The filtered notifications
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getMissedFeedsByTopic(int $appId, string $topic, array $filters = []): array
     {
@@ -54,9 +54,9 @@ class NotificationService
      * @param  string|null  $topic  Optional topic filter
      * @return array<string, mixed> The paginated notifications
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getMissedFeedsPaginated(int $appId, int $limit = 10, int $offset = 0, string $topic = null): array
+    public function getMissedFeedsPaginated(int $appId, int $limit = 10, int $offset = 0, ?string $topic = null): array
     {
         $filters = [
             'limit' => $limit,
@@ -76,7 +76,7 @@ class NotificationService
      * @param  array<string, mixed>  $notification  The notification data
      * @return array<string, mixed> The resource data
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getResourceFromNotification(array $notification): array
     {
@@ -97,7 +97,7 @@ class NotificationService
      * @param  array<string, mixed>  $notification  The notification data
      * @return array<string, mixed> An array with notification details and resource data
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function processNotification(array $notification): array
     {
@@ -182,7 +182,7 @@ class NotificationService
      * @param  array<string, mixed>  $filters  Optional filters
      * @return array<string, mixed> The orders notifications
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getOrdersNotifications(int $appId, array $filters = []): array
     {
@@ -196,7 +196,7 @@ class NotificationService
      * @param  array<string, mixed>  $filters  Optional filters
      * @return array<string, mixed> The items notifications
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getItemsNotifications(int $appId, array $filters = []): array
     {
@@ -210,7 +210,7 @@ class NotificationService
      * @param  array<string, mixed>  $filters  Optional filters
      * @return array<string, mixed> The questions notifications
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getQuestionsNotifications(int $appId, array $filters = []): array
     {
@@ -224,7 +224,7 @@ class NotificationService
      * @param  array<string, mixed>  $filters  Optional filters
      * @return array<string, mixed> The payments notifications
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getPaymentsNotifications(int $appId, array $filters = []): array
     {
@@ -238,7 +238,7 @@ class NotificationService
      * @param  array<string, mixed>  $filters  Optional filters
      * @return array<string, mixed> The shipments notifications
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getShipmentsNotifications(int $appId, array $filters = []): array
     {
@@ -252,7 +252,7 @@ class NotificationService
      * @param  array<string, mixed>  $filters  Optional filters
      * @return array<string, mixed> The messages notifications
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getMessagesNotifications(int $appId, array $filters = []): array
     {
@@ -266,7 +266,7 @@ class NotificationService
      * @param  array<string, mixed>  $filters  Optional filters
      * @return array<string, mixed> The claims notifications
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getClaimsNotifications(int $appId, array $filters = []): array
     {

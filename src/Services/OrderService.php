@@ -16,7 +16,7 @@ class OrderService
      * @param  int  $orderId  The order ID
      * @return array<string, mixed> The order details
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function get(int $orderId): array
     {
@@ -31,7 +31,7 @@ class OrderService
      * @param  array<string, mixed>  $filters  The search filters
      * @return array<string, mixed> The search results
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function search(array $filters = []): array
     {
@@ -51,7 +51,7 @@ class OrderService
      * @param  array<string, mixed>  $filters  Additional filters
      * @return array<string, mixed> The seller orders
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getBySeller(int $sellerId, array $filters = []): array
     {
@@ -66,7 +66,7 @@ class OrderService
      * @param  array<string, mixed>  $filters  Additional filters
      * @return array<string, mixed> The buyer orders
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getByBuyer(int $buyerId, array $filters = []): array
     {
@@ -81,7 +81,7 @@ class OrderService
      * @param  array<string, mixed>  $filters  Additional filters
      * @return array<string, mixed> The filtered orders
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getByStatus(string $status, array $filters = []): array
     {
@@ -98,7 +98,7 @@ class OrderService
      * @param  array<string, mixed>  $filters  Additional filters
      * @return array<string, mixed> The filtered orders
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getByDateRange(string $dateFrom, string $dateTo, string $dateField = 'created', array $filters = []): array
     {
@@ -114,7 +114,7 @@ class OrderService
      * @param  array<string, mixed>  $filters  Additional filters
      * @return array<string, mixed> The filtered orders
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getByTags($tags, array $filters = []): array
     {
@@ -133,7 +133,7 @@ class OrderService
      * @param  array<string, mixed>  $filters  Additional filters
      * @return array<string, mixed> The filtered orders
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getExcludingTags($tags, array $filters = []): array
     {
@@ -151,7 +151,7 @@ class OrderService
      * @param  array<string, mixed>  $filters  Additional filters
      * @return array<string, mixed> The Mercado Shops orders
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getMercadoShopsOrders(array $filters = []): array
     {
@@ -164,7 +164,7 @@ class OrderService
      * @param  int  $orderId  The order ID
      * @return array<string, mixed> The product information
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getProductInfo(int $orderId): array
     {
@@ -179,7 +179,7 @@ class OrderService
      * @param  int  $orderId  The order ID
      * @return array<string, mixed> The order discounts
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getDiscounts(int $orderId): array
     {
@@ -197,7 +197,7 @@ class OrderService
      * @param  string  $sort  Sort order (date_desc, date_asc)
      * @return array<string, mixed> The paginated results
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function searchPaginated(array $filters = [], int $limit = 50, int $offset = 0, string $sort = 'date_asc'): array
     {
@@ -214,7 +214,7 @@ class OrderService
      * @param  array<string, mixed>  $filters  Additional filters
      * @return array<string, mixed> The fraud risk orders
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getFraudRiskOrders(array $filters = []): array
     {
@@ -227,7 +227,7 @@ class OrderService
      * @param  array<string, mixed>  $filters  Additional filters
      * @return array<string, mixed> The paid orders
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getPaidOrders(array $filters = []): array
     {
@@ -240,7 +240,7 @@ class OrderService
      * @param  array<string, mixed>  $filters  Additional filters
      * @return array<string, mixed> The delivered orders
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getDeliveredOrders(array $filters = []): array
     {
@@ -253,7 +253,7 @@ class OrderService
      * @param  array<string, mixed>  $filters  Additional filters
      * @return array<string, mixed> The cancelled orders
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function getCancelledOrders(array $filters = []): array
     {

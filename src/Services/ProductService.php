@@ -16,7 +16,7 @@ class ProductService
      * @param  array<string, mixed>  $productData  The product data
      * @return array<string, mixed> The created product
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function create(array $productData): array
     {
@@ -32,7 +32,7 @@ class ProductService
      * @param  string  $itemId  The product ID
      * @return array<string, mixed> The product
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function get(string $itemId): array
     {
@@ -48,7 +48,7 @@ class ProductService
      * @param  array<string, mixed>  $updateData  The update data
      * @return array<string, mixed> The updated product
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function update(string $itemId, array $updateData): array
     {
@@ -65,7 +65,7 @@ class ProductService
      * @param  string  $status  The new status
      * @return array<string, mixed> The updated product
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      */
     public function changeStatus(string $itemId, string $status): array
     {

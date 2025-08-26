@@ -18,7 +18,7 @@ class AuthService
      * @param  string  $code  The authorization code
      * @return Response The response (use ->json() to get array data)
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      * @throws InvalidArgumentException If the required config is missing
      */
     public function getToken(string $code): Response
@@ -42,7 +42,7 @@ class AuthService
      * @param  string  $refreshToken  The refresh token
      * @return Response The response (use ->json() to get array data)
      *
-     * @throws ApiException If the request fails
+     * @throws IlluminateHttpClientRequestException If the request fails
      * @throws InvalidArgumentException If the required config is missing
      */
     public function refreshToken(string $refreshToken): Response

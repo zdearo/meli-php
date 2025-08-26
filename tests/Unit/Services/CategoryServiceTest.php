@@ -2,15 +2,29 @@
 
 use Zdearo\Meli\Services\CategoryService;
 
-// Mock app function for Laravel service container
+// Mock functions for testing
 if (! function_exists('app')) {
     function app(?string $abstract = null)
     {
         if ($abstract === 'meli.client') {
             return new \Zdearo\Meli\Support\MeliApiClient;
         }
-
         return null;
+    }
+}
+
+if (! function_exists('config')) {
+    function config(string $key, $default = null)
+    {
+        $configs = [
+            'meli.client_id' => 'test-client-id',
+            'meli.client_secret' => 'test-client-secret',
+            'meli.redirect_uri' => 'https://example.com/callback',
+            'meli.auth_domain' => 'mercadolibre.com.br',
+            'meli.base_url' => 'https://api.mercadolibre.com/',
+            'meli.api_token' => 'test-api-token',
+        ];
+        return $configs[$key] ?? $default;
     }
 }
 
