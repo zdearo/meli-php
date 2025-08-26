@@ -10,19 +10,13 @@ use Zdearo\Meli\Services\VisitsService;
 
 class MeliApiClient extends ApiClient
 {
-    public static function getAuthUrl(): string
+    public static function getAuthUrl($state): string
     {
         $redirectUri = config('meli.redirect_uri');
         $clientId = config('meli.client_id');
-        $state = static::generateState();
         $authDomain = config('meli.auth_domain', 'mercadolibre.com.br');
 
         return "https://auth.{$authDomain}/authorization?response_type=code&client_id={$clientId}&redirect_uri={$redirectUri}&state={$state}";
-    }
-
-    protected static function generateState(): string
-    {
-        return bin2hex(random_bytes(16));
     }
 
     public function auth(): AuthService

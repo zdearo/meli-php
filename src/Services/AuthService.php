@@ -60,34 +60,6 @@ class AuthService
     }
 
     /**
-     * Get token data as array.
-     *
-     * @param  string  $code  The authorization code
-     * @return array<string, mixed> The token data
-     *
-     * @throws ApiException If the request fails
-     * @throws InvalidArgumentException If the required config is missing
-     */
-    public function getTokenData(string $code): array
-    {
-        return $this->getToken($code)->json();
-    }
-
-    /**
-     * Refresh token data as an array.
-     *
-     * @param  string  $refreshToken  The refresh token
-     * @return array<string, mixed> The token data
-     *
-     * @throws ApiException If the request fails
-     * @throws InvalidArgumentException If the required config is missing
-     */
-    public function refreshTokenData(string $refreshToken): array
-    {
-        return $this->refreshToken($refreshToken)->json();
-    }
-
-    /**
      * Validate required configuration.
      *
      * @throws InvalidArgumentException If the required config is missing
