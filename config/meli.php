@@ -84,4 +84,48 @@ return [
     |
     */
     'auth_domain' => env('MELI_AUTH_DOMAIN', 'mercadolibre.com.br'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | API Token (Static)
+    |--------------------------------------------------------------------------
+    |
+    | A static API token for authentication. This is used as fallback when
+    | no access_token_resolver is configured.
+    |
+    */
+    'api_token' => env('MELI_API_TOKEN', ''),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Access Token Resolver
+    |--------------------------------------------------------------------------
+    |
+    | This configuration allows you to dynamically resolve access tokens
+    | for API requests. You can configure this in several ways:
+    |
+    | 1. Closure/Callable: Return a closure that resolves the token
+    | 2. Class name: Specify a class that implements a 'resolve()' method
+    | 3. null: Use the static 'api_token' configuration above
+    |
+    | Examples:
+    |
+    | // Global resolver in your AppServiceProvider:
+    | config(['meli.access_token_resolver' => function () {
+    |     return auth()->user()?->meli_access_token;
+    | }]);
+    |
+    | // Context-aware resolver for forConnection() method:
+    | config(['meli.access_token_resolver' => function ($connectionId = null) {
+    |     if ($connectionId) {
+    |         return MeliConnection::find($connectionId)?->access_token;
+    |     }
+    |     return auth()->user()?->meli_access_token;
+    | }]);
+    |
+    | // Using a custom resolver class:
+    | config(['meli.access_token_resolver' => App\Services\MeliTokenResolver::class]);
+    |
+    */
+    'access_token_resolver' => null,
 ];

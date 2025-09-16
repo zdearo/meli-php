@@ -16,6 +16,7 @@ use Zdearo\Meli\Services\VisitsService;
 
 class MeliApiClient extends ApiClient
 {
+    protected ?string $contextualToken = null;
     public static function getAuthUrl($state): string
     {
         $redirectUri = config('meli.redirect_uri');
@@ -82,6 +83,58 @@ class MeliApiClient extends ApiClient
 
     protected function authorize(PendingRequest $request): PendingRequest
     {
-        return $request->withToken(config('meli.api_token'));
+        $token = $this->resolveAccessToken();
+
+        if ($token) {
+            return $request->withToken($token);
+        }
+
+        return $request;
+    }
+
+    public function withToken(string $token): static
+    {
+        $this->contextualToken = $token;
+        return $this;
+    }
+
+    public function forConnection($connection): static
+    {
+        if (is_object($connection) && property_exists($connection, 'access_token')) {
+            $this->contextualToken = $connection->access_token;
+        }
+        elseif (is_object($connection) && method_exists($connection, 'getAccessToken')) {
+            $this->contextualToken = $connection->getAccessToken();
+        }
+        elseif (is_string($connection) || is_int($connection)) {
+            $tokenResolver = config('meli.access_token_resolver');
+            if (is_callable($tokenResolver)) {
+                $this->contextualToken = call_user_func($tokenResolver, $connection);
+            }
+        }
+
+        return $this;
+    }
+
+    protected function resolveAccessToken(): ?string
+    {
+        if ($this->contextualToken) {
+            return $this->contextualToken;
+        }
+
+        $tokenResolver = config('meli.access_token_resolver');
+
+        if (is_callable($tokenResolver)) {
+            return call_user_func($tokenResolver);
+        }
+
+        if (is_string($tokenResolver) && class_exists($tokenResolver)) {
+            $resolver = app($tokenResolver);
+            if (method_exists($resolver, 'resolve')) {
+                return $resolver->resolve();
+            }
+        }
+
+        return config('meli.api_token');
     }
 }
