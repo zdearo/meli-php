@@ -17,6 +17,7 @@ use Zdearo\Meli\Services\VisitsService;
 class MeliApiClient extends ApiClient
 {
     protected ?string $contextualToken = null;
+  
     public static function getAuthUrl($state): string
     {
         $redirectUri = config('meli.redirect_uri');
