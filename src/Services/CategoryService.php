@@ -2,6 +2,7 @@
 
 namespace Zdearo\Meli\Services;
 
+use Illuminate\Http\Client\Response;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -12,11 +13,11 @@ class CategoryService
     /**
      * Get all sites available in Mercado Libre.
      *
-     * @return array<string, mixed> The available sites
+     * @return Response The available sites
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getSites(): array
+    public function getSites(): Response
     {
         return ApiRequest::get('sites')
             ->send();
@@ -26,11 +27,11 @@ class CategoryService
      * Get all categories for a specific site.
      *
      * @param  string  $siteId  The site ID (e.g., MLB, MLA)
-     * @return array<string, mixed> The categories
+     * @return Response The categories
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getCategories(string $siteId): array
+    public function getCategories(string $siteId): Response
     {
         return ApiRequest::get("sites/{$siteId}/categories")
             ->send();
@@ -40,11 +41,11 @@ class CategoryService
      * Get category details by ID.
      *
      * @param  string  $categoryId  The category ID
-     * @return array<string, mixed> The category details
+     * @return Response The category details
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function get(string $categoryId): array
+    public function get(string $categoryId): Response
     {
         return ApiRequest::get("categories/{$categoryId}")
             ->send();
@@ -54,11 +55,11 @@ class CategoryService
      * Get category attributes.
      *
      * @param  string  $categoryId  The category ID
-     * @return array<string, mixed> The category attributes
+     * @return Response The category attributes
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getAttributes(string $categoryId): array
+    public function getAttributes(string $categoryId): Response
     {
         return ApiRequest::get("categories/{$categoryId}/attributes")
             ->send();
@@ -68,11 +69,11 @@ class CategoryService
      * Get listing types for a site.
      *
      * @param  string  $siteId  The site ID
-     * @return array<string, mixed> The listing exposures
+     * @return Response The listing exposures
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getListingExposures(string $siteId): array
+    public function getListingExposures(string $siteId): Response
     {
         return ApiRequest::get("sites/{$siteId}/listing_exposures")
             ->send();
@@ -83,11 +84,11 @@ class CategoryService
      *
      * @param  string  $siteId  The site ID
      * @param  float  $price  The price to check
-     * @return array<string, mixed> The listing prices
+     * @return Response The listing prices
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getListingPrices(string $siteId, float $price): array
+    public function getListingPrices(string $siteId, float $price): Response
     {
         return ApiRequest::get("sites/{$siteId}/listing_prices")
             ->withQuery(['price' => $price])
@@ -100,11 +101,11 @@ class CategoryService
      * @param  string  $siteId  The site ID
      * @param  string  $query  The search query (title, description, etc.)
      * @param  int|null  $limit  Optional limit of results
-     * @return array<string, mixed> The predicted categories
+     * @return Response The predicted categories
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function predictCategory(string $siteId, string $query, ?int $limit = null): array
+    public function predictCategory(string $siteId, string $query, ?int $limit = null): Response
     {
         $request = ApiRequest::get("sites/{$siteId}/domain_discovery/search")
             ->withQuery(['q' => $query]);
@@ -121,11 +122,11 @@ class CategoryService
      * Get classifieds promotion packs for a category.
      *
      * @param  string  $categoryId  The category ID
-     * @return array<string, mixed> The promotion packs
+     * @return Response The promotion packs
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getClassifiedsPromotionPacks(string $categoryId): array
+    public function getClassifiedsPromotionPacks(string $categoryId): Response
     {
         return ApiRequest::get("categories/{$categoryId}/classifieds_promotion_packs")
             ->send();
@@ -135,11 +136,11 @@ class CategoryService
      * Get technical specs for a domain.
      *
      * @param  string  $domainId  The domain ID
-     * @return array<string, mixed> The technical specifications
+     * @return Response The technical specifications
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getDomainTechnicalSpecs(string $domainId): array
+    public function getDomainTechnicalSpecs(string $domainId): Response
     {
         return ApiRequest::get("domains/{$domainId}/technical_specs")
             ->send();

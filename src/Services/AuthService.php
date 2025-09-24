@@ -4,7 +4,6 @@ namespace Zdearo\Meli\Services;
 
 use Illuminate\Http\Client\Response;
 use InvalidArgumentException;
-use Zdearo\Meli\Exceptions\ApiException;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**

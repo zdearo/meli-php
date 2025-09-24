@@ -14,11 +14,11 @@ class UserService
      * Get user information by user ID.
      *
      * @param  int  $userId  The user ID
-     * @return array<string, mixed> The user information
+     * @return Response The user information
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function get(int $userId): array
+    public function get(int $userId): Response
     {
         return ApiRequest::get("users/{$userId}")
             ->send();
@@ -27,11 +27,11 @@ class UserService
     /**
      * Get authenticated user information.
      *
-     * @return array<string, mixed> The authenticated user information
+     * @return Response The authenticated user information
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function me(): array
+    public function me(): Response
     {
         return ApiRequest::get('users/me')
             ->send();
@@ -42,11 +42,11 @@ class UserService
      *
      * @param  int  $userId  The user ID
      * @param  array<string, mixed>  $userData  The user data to update
-     * @return array<string, mixed> The updated user information
+     * @return Response The updated user information
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function update(int $userId, array $userData): array
+    public function update(int $userId, array $userData): Response
     {
         return ApiRequest::put("users/{$userId}")
             ->withBody($userData)
@@ -57,11 +57,11 @@ class UserService
      * Get user addresses.
      *
      * @param  int  $userId  The user ID
-     * @return array<string, mixed> The user addresses
+     * @return Response The user addresses
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getAddresses(int $userId): array
+    public function getAddresses(int $userId): Response
     {
         return ApiRequest::get("users/{$userId}/addresses")
             ->send();
@@ -71,11 +71,11 @@ class UserService
      * Get user's accepted payment methods.
      *
      * @param  int  $userId  The user ID
-     * @return array<string, mixed> The accepted payment methods
+     * @return Response The accepted payment methods
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getAcceptedPaymentMethods(int $userId): array
+    public function getAcceptedPaymentMethods(int $userId): Response
     {
         return ApiRequest::get("users/{$userId}/accepted_payment_methods")
             ->send();
@@ -85,11 +85,11 @@ class UserService
      * Get user's brands.
      *
      * @param  int  $userId  The user ID
-     * @return array<string, mixed> The user's brands
+     * @return Response The user's brands
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getBrands(int $userId): array
+    public function getBrands(int $userId): Response
     {
         return ApiRequest::get("users/{$userId}/brands")
             ->send();
@@ -100,11 +100,11 @@ class UserService
      *
      * @param  int  $userId  The user ID
      * @param  string|null  $categoryId  Optional category ID
-     * @return array<string, mixed> The available listing types
+     * @return Response The available listing types
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getAvailableListingTypes(int $userId, ?string $categoryId = null): array
+    public function getAvailableListingTypes(int $userId, ?string $categoryId = null): Response
     {
         $endpoint = "users/{$userId}/available_listing_types";
         $request = ApiRequest::get($endpoint);
@@ -122,11 +122,11 @@ class UserService
      * @param  int  $userId  The user ID
      * @param  string  $listingTypeId  The listing type ID
      * @param  string|null  $categoryId  Optional category ID
-     * @return array<string, mixed> The listing type availability
+     * @return Response The listing type availability
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getAvailableListingType(int $userId, string $listingTypeId, ?string $categoryId = null): array
+    public function getAvailableListingType(int $userId, string $listingTypeId, ?string $categoryId = null): Response
     {
         $endpoint = "users/{$userId}/available_listing_type/{$listingTypeId}";
         $request = ApiRequest::get($endpoint);
@@ -142,11 +142,11 @@ class UserService
      * Get user's classifieds promotion packs.
      *
      * @param  int  $userId  The user ID
-     * @return array<string, mixed> The promotion packs
+     * @return Response The promotion packs
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getClassifiedsPromotionPacks(int $userId): array
+    public function getClassifiedsPromotionPacks(int $userId): Response
     {
         return ApiRequest::get("users/{$userId}/classifieds_promotion_packs")
             ->send();
@@ -157,11 +157,11 @@ class UserService
      *
      * @param  int  $userId  The user ID
      * @param  array<string, mixed>  $packData  The promotion pack data
-     * @return array<string, mixed> The created promotion pack
+     * @return Response The created promotion pack
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function createClassifiedsPromotionPack(int $userId, array $packData): array
+    public function createClassifiedsPromotionPack(int $userId, array $packData): Response
     {
         return ApiRequest::post("users/{$userId}/classifieds_promotion_packs")
             ->withBody($packData)
@@ -174,11 +174,11 @@ class UserService
      * @param  int  $userId  The user ID
      * @param  string  $listingType  The listing type
      * @param  string  $categoryId  The category ID
-     * @return array<string, mixed> The availability information
+     * @return Response The availability information
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function checkListingAvailability(int $userId, string $listingType, string $categoryId): array
+    public function checkListingAvailability(int $userId, string $listingType, string $categoryId): Response
     {
         return ApiRequest::get("users/{$userId}/classifieds_promotion_packs/{$listingType}")
             ->withQuery(['categoryId' => $categoryId])

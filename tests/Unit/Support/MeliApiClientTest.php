@@ -14,6 +14,7 @@ if (! function_exists('config')) {
             'meli.base_url' => 'https://api.mercadolibre.com/',
             'meli.api_token' => 'test-api-token',
         ];
+
         return $configs[$key] ?? $default;
     }
 }
@@ -22,8 +23,9 @@ if (! function_exists('app')) {
     function app(?string $class = null)
     {
         if ($class) {
-            return new $class();
+            return new $class;
         }
+
         return null;
     }
 }
@@ -37,7 +39,7 @@ test('can create meli api client instance', function () {
 test('can generate auth url with state', function () {
     // Test that the method exists and can be called without errors
     expect(method_exists(MeliApiClient::class, 'getAuthUrl'))->toBeTrue();
-    
+
     // Instead of calling the method (which requires Laravel), test class structure
     expect(MeliApiClient::class)->toBeString();
 });

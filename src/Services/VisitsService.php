@@ -2,6 +2,7 @@
 
 namespace Zdearo\Meli\Services;
 
+use Illuminate\Http\Client\Response;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -15,11 +16,11 @@ class VisitsService
      * @param  int  $userId  The user ID
      * @param  string  $dateFrom  The start date (format: YYYY-MM-DD)
      * @param  string  $dateTo  The end date (format: YYYY-MM-DD)
-     * @return array<string, mixed> The visit statistics
+     * @return Response The visit statistics
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function totalByUser(int $userId, string $dateFrom, string $dateTo): array
+    public function totalByUser(int $userId, string $dateFrom, string $dateTo): Response
     {
         return ApiRequest::get("users/{$userId}/items_visits")
             ->withQuery([
@@ -33,11 +34,11 @@ class VisitsService
      * Get total visits for an item.
      *
      * @param  string  $itemId  The item ID
-     * @return array<string, mixed> The visit statistics
+     * @return Response The visit statistics
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function totalByItem(string $itemId): array
+    public function totalByItem(string $itemId): Response
     {
         return ApiRequest::get('visits/items')
             ->withQuery(['ids' => $itemId])
@@ -50,11 +51,11 @@ class VisitsService
      * @param  array<int, string>  $itemIds  The item IDs
      * @param  string  $dateFrom  The start date (format: YYYY-MM-DD)
      * @param  string  $dateTo  The end date (format: YYYY-MM-DD)
-     * @return array<string, mixed> The visit statistics
+     * @return Response The visit statistics
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function totalByItemsDateRange(array $itemIds, string $dateFrom, string $dateTo): array
+    public function totalByItemsDateRange(array $itemIds, string $dateFrom, string $dateTo): Response
     {
         return ApiRequest::get('items/visits')
             ->withQuery([
@@ -72,11 +73,11 @@ class VisitsService
      * @param  int  $last  The number of time units
      * @param  string  $unit  The time unit (day, week, month)
      * @param  string|null  $ending  The end date (format: YYYY-MM-DD)
-     * @return array<string, mixed> The visit statistics
+     * @return Response The visit statistics
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function visitsByUserTimeWindow(int $userId, int $last, string $unit, ?string $ending = null): array
+    public function visitsByUserTimeWindow(int $userId, int $last, string $unit, ?string $ending = null): Response
     {
         $params = [
             'last' => $last,
@@ -99,11 +100,11 @@ class VisitsService
      * @param  int  $last  The number of time units
      * @param  string  $unit  The time unit (day, week, month)
      * @param  string|null  $ending  The end date (format: YYYY-MM-DD)
-     * @return array<string, mixed> The visit statistics
+     * @return Response The visit statistics
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function visitsByItemTimeWindow(string $itemId, int $last, string $unit, ?string $ending = null): array
+    public function visitsByItemTimeWindow(string $itemId, int $last, string $unit, ?string $ending = null): Response
     {
         $params = [
             'last' => $last,

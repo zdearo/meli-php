@@ -17,7 +17,7 @@ use Zdearo\Meli\Services\VisitsService;
 class MeliApiClient extends ApiClient
 {
     protected ?string $contextualToken = null;
-  
+
     public static function getAuthUrl($state): string
     {
         $redirectUri = config('meli.redirect_uri');
@@ -96,6 +96,7 @@ class MeliApiClient extends ApiClient
     public function withToken(string $token): static
     {
         $this->contextualToken = $token;
+
         return $this;
     }
 
@@ -103,11 +104,9 @@ class MeliApiClient extends ApiClient
     {
         if (is_object($connection) && property_exists($connection, 'access_token')) {
             $this->contextualToken = $connection->access_token;
-        }
-        elseif (is_object($connection) && method_exists($connection, 'getAccessToken')) {
+        } elseif (is_object($connection) && method_exists($connection, 'getAccessToken')) {
             $this->contextualToken = $connection->getAccessToken();
-        }
-        elseif (is_string($connection) || is_int($connection)) {
+        } elseif (is_string($connection) || is_int($connection)) {
             $tokenResolver = config('meli.access_token_resolver');
             if (is_callable($tokenResolver)) {
                 $this->contextualToken = call_user_func($tokenResolver, $connection);

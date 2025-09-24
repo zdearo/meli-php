@@ -14,11 +14,11 @@ class QuestionService
      * Search questions with filters.
      *
      * @param  array<string, mixed>  $filters  The search filters
-     * @return array<string, mixed> The search results
+     * @return Response The search results
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function search(array $filters = []): array
+    public function search(array $filters = []): Response
     {
         $filters['api_version'] = 4;
 
@@ -32,11 +32,11 @@ class QuestionService
      *
      * @param  int  $sellerId  The seller ID
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The seller questions
+     * @return Response The seller questions
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getBySeller(int $sellerId, array $filters = []): array
+    public function getBySeller(int $sellerId, array $filters = []): Response
     {
         $filters['seller_id'] = $sellerId;
 
@@ -48,11 +48,11 @@ class QuestionService
      *
      * @param  string  $itemId  The item ID
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The item questions
+     * @return Response The item questions
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getByItem(string $itemId, array $filters = []): array
+    public function getByItem(string $itemId, array $filters = []): Response
     {
         $filters['item'] = $itemId;
 
@@ -65,11 +65,11 @@ class QuestionService
      * @param  int  $userId  The user ID who asked the question
      * @param  string  $itemId  The item ID
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The user questions
+     * @return Response The user questions
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getByUser(int $userId, string $itemId, array $filters = []): array
+    public function getByUser(int $userId, string $itemId, array $filters = []): Response
     {
         $filters['from'] = $userId;
         $filters['item'] = $itemId;
@@ -81,11 +81,11 @@ class QuestionService
      * Get question by ID.
      *
      * @param  int  $questionId  The question ID
-     * @return array<string, mixed> The question details
+     * @return Response The question details
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function get(int $questionId): array
+    public function get(int $questionId): Response
     {
         return ApiRequest::get("questions/{$questionId}")
             ->withQuery(['api_version' => 4])
@@ -97,11 +97,11 @@ class QuestionService
      *
      * @param  string  $itemId  The item ID
      * @param  string  $text  The question text (max 2000 characters)
-     * @return array<string, mixed> The created question
+     * @return Response The created question
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function create(string $itemId, string $text): array
+    public function create(string $itemId, string $text): Response
     {
         return ApiRequest::post('questions')
             ->withBody([
@@ -116,11 +116,11 @@ class QuestionService
      *
      * @param  int  $questionId  The question ID
      * @param  string  $text  The answer text (max 2000 characters)
-     * @return array<string, mixed> The created answer
+     * @return Response The created answer
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function answer(int $questionId, string $text): array
+    public function answer(int $questionId, string $text): Response
     {
         return ApiRequest::post('answers')
             ->withBody([
@@ -149,11 +149,11 @@ class QuestionService
      *
      * @param  int  $sellerId  The seller ID
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The unanswered questions
+     * @return Response The unanswered questions
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getUnansweredBySeller(int $sellerId, array $filters = []): array
+    public function getUnansweredBySeller(int $sellerId, array $filters = []): Response
     {
         $filters['status'] = 'UNANSWERED';
 
@@ -165,11 +165,11 @@ class QuestionService
      *
      * @param  int  $sellerId  The seller ID
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The answered questions
+     * @return Response The answered questions
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getAnsweredBySeller(int $sellerId, array $filters = []): array
+    public function getAnsweredBySeller(int $sellerId, array $filters = []): Response
     {
         $filters['status'] = 'ANSWERED';
 
@@ -181,11 +181,11 @@ class QuestionService
      *
      * @param  string  $status  The question status (ANSWERED, UNANSWERED, BANNED, etc.)
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The filtered questions
+     * @return Response The filtered questions
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getByStatus(string $status, array $filters = []): array
+    public function getByStatus(string $status, array $filters = []): Response
     {
         $filters['status'] = $status;
 
@@ -198,11 +198,11 @@ class QuestionService
      * @param  array<string, mixed>  $filters  Search filters
      * @param  array<string>  $sortFields  Fields to sort by (item_id, seller_id, from_id, date_created)
      * @param  string  $sortType  Sort type (ASC, DESC)
-     * @return array<string, mixed> The sorted results
+     * @return Response The sorted results
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function searchSorted(array $filters = [], array $sortFields = [], string $sortType = 'ASC'): array
+    public function searchSorted(array $filters = [], array $sortFields = [], string $sortType = 'ASC'): Response
     {
         if (! empty($sortFields)) {
             $filters['sort_fields'] = implode(',', $sortFields);
@@ -218,11 +218,11 @@ class QuestionService
      * @param  array<string, mixed>  $filters  Search filters
      * @param  int  $limit  Number of results per page
      * @param  int  $offset  Results offset
-     * @return array<string, mixed> The paginated results
+     * @return Response The paginated results
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function searchPaginated(array $filters = [], int $limit = 50, int $offset = 0): array
+    public function searchPaginated(array $filters = [], int $limit = 50, int $offset = 0): Response
     {
         $filters['limit'] = $limit;
         $filters['offset'] = $offset;
@@ -234,11 +234,11 @@ class QuestionService
      * Get user's question response time metrics.
      *
      * @param  int  $userId  The user ID
-     * @return array<string, mixed> The response time metrics
+     * @return Response The response time metrics
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getResponseTime(int $userId): array
+    public function getResponseTime(int $userId): Response
     {
         return ApiRequest::get("users/{$userId}/questions/response_time")
             ->send();
@@ -248,11 +248,11 @@ class QuestionService
      * Hide questions from listing.
      *
      * @param  array<int>  $questionIds  Array of question IDs to hide
-     * @return array<string, mixed> The response
+     * @return Response The response
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function hideQuestions(array $questionIds): array
+    public function hideQuestions(array $questionIds): Response
     {
         return ApiRequest::post('my/questions/hidden')
             ->withBody(['question_ids' => $questionIds])
@@ -263,11 +263,11 @@ class QuestionService
      * Get banned questions.
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The banned questions
+     * @return Response The banned questions
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getBannedQuestions(array $filters = []): array
+    public function getBannedQuestions(array $filters = []): Response
     {
         return $this->getByStatus('BANNED', $filters);
     }
@@ -276,11 +276,11 @@ class QuestionService
      * Get questions under review.
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The questions under review
+     * @return Response The questions under review
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getQuestionsUnderReview(array $filters = []): array
+    public function getQuestionsUnderReview(array $filters = []): Response
     {
         return $this->getByStatus('UNDER_REVIEW', $filters);
     }
@@ -289,11 +289,11 @@ class QuestionService
      * Get closed unanswered questions.
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The closed unanswered questions
+     * @return Response The closed unanswered questions
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getClosedUnansweredQuestions(array $filters = []): array
+    public function getClosedUnansweredQuestions(array $filters = []): Response
     {
         return $this->getByStatus('CLOSED_UNANSWERED', $filters);
     }

@@ -1,7 +1,6 @@
 <?php
 
 use Zdearo\Meli\Services\AuthService;
-use Zdearo\Meli\Support\MeliApiClient;
 
 beforeEach(function () {
     // Mock global config and app functions for tests
@@ -25,8 +24,9 @@ beforeEach(function () {
         function app(?string $class = null)
         {
             if ($class) {
-                return new $class();
+                return new $class;
             }
+
             return null;
         }
     }
@@ -45,8 +45,8 @@ test('can get auth url from MeliApiClient', function () {
 
 test('can get auth url with custom state', function () {
     // Test that the AuthService has the required methods
-    $authService = new AuthService();
-    
+    $authService = new AuthService;
+
     expect($authService)->toBeInstanceOf(AuthService::class);
     expect(method_exists($authService, 'getToken'))->toBeTrue();
     expect(method_exists($authService, 'refreshToken'))->toBeTrue();
