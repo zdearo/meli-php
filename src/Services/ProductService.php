@@ -2,7 +2,6 @@
 
 namespace Zdearo\Meli\Services;
 
-use Zdearo\Meli\Exceptions\ApiException;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -22,8 +21,7 @@ class ProductService
     {
         return ApiRequest::post('items')
             ->withBody($productData)
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -37,8 +35,7 @@ class ProductService
     public function get(string $itemId): array
     {
         return ApiRequest::get("items/{$itemId}")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -54,8 +51,7 @@ class ProductService
     {
         return ApiRequest::put("items/{$itemId}")
             ->withBody($updateData)
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -71,7 +67,6 @@ class ProductService
     {
         return ApiRequest::put("items/{$itemId}")
             ->withBody(['status' => $status])
-            ->send()
-            ->json();
+            ->send();
     }
 }

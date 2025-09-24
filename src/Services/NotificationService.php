@@ -2,7 +2,6 @@
 
 namespace Zdearo\Meli\Services;
 
-use Zdearo\Meli\Exceptions\ApiException;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -22,11 +21,10 @@ class NotificationService
     public function getMissedFeeds(int $appId, array $filters = []): array
     {
         $filters['app_id'] = $appId;
-        
+
         return ApiRequest::get('missed_feeds')
             ->withQuery($filters)
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -42,6 +40,7 @@ class NotificationService
     public function getMissedFeedsByTopic(int $appId, string $topic, array $filters = []): array
     {
         $filters['topic'] = $topic;
+
         return $this->getMissedFeeds($appId, $filters);
     }
 
@@ -80,15 +79,14 @@ class NotificationService
      */
     public function getResourceFromNotification(array $notification): array
     {
-        if (!isset($notification['resource'])) {
+        if (! isset($notification['resource'])) {
             throw new \InvalidArgumentException('Notification must contain a resource field');
         }
 
         $resource = ltrim($notification['resource'], '/');
-        
+
         return ApiRequest::get($resource)
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -102,7 +100,7 @@ class NotificationService
     public function processNotification(array $notification): array
     {
         $resourceData = $this->getResourceFromNotification($notification);
-        
+
         return [
             'notification' => $notification,
             'resource_data' => $resourceData,
@@ -118,13 +116,13 @@ class NotificationService
     public function validateNotification(array $notification): bool
     {
         $required = ['resource', 'user_id', 'topic', 'application_id'];
-        
+
         foreach ($required as $field) {
-            if (!isset($notification[$field])) {
+            if (! isset($notification[$field])) {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -172,6 +170,7 @@ class NotificationService
     public function hasNotificationAction(array $notification, string $action): bool
     {
         $actions = $this->getNotificationActions($notification);
+
         return $actions ? in_array($action, $actions) : false;
     }
 

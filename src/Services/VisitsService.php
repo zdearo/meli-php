@@ -2,7 +2,6 @@
 
 namespace Zdearo\Meli\Services;
 
-use Zdearo\Meli\Exceptions\ApiException;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -27,8 +26,7 @@ class VisitsService
                 'date_from' => $dateFrom,
                 'date_to' => $dateTo,
             ])
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -43,8 +41,7 @@ class VisitsService
     {
         return ApiRequest::get('visits/items')
             ->withQuery(['ids' => $itemId])
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -65,8 +62,7 @@ class VisitsService
                 'date_from' => $dateFrom,
                 'date_to' => $dateTo,
             ])
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -93,8 +89,7 @@ class VisitsService
 
         return ApiRequest::get("users/{$userId}/items_visits/time_window")
             ->withQuery($params)
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -121,7 +116,6 @@ class VisitsService
 
         return ApiRequest::get("items/{$itemId}/visits/time_window")
             ->withQuery($params)
-            ->send()
-            ->json();
+            ->send();
     }
 }

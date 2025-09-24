@@ -2,7 +2,6 @@
 
 namespace Zdearo\Meli\Services;
 
-use Zdearo\Meli\Exceptions\ApiException;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -21,8 +20,7 @@ class PaymentService
     public function get(int $paymentId): array
     {
         return ApiRequest::get("collections/{$paymentId}")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -37,8 +35,7 @@ class PaymentService
     {
         return ApiRequest::get('payments/search')
             ->withQuery($filters)
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -79,6 +76,7 @@ class PaymentService
     public function getByStatus(string $status, array $filters = []): array
     {
         $filters['status'] = $status;
+
         return $this->search($filters);
     }
 
@@ -162,6 +160,7 @@ class PaymentService
     {
         $filters["date_{$dateField}.from"] = $dateFrom;
         $filters["date_{$dateField}.to"] = $dateTo;
+
         return $this->search($filters);
     }
 
@@ -177,6 +176,7 @@ class PaymentService
     public function getByPaymentMethod(string $paymentMethodId, array $filters = []): array
     {
         $filters['payment_method_id'] = $paymentMethodId;
+
         return $this->search($filters);
     }
 
@@ -192,6 +192,7 @@ class PaymentService
     public function getByCollector(int $collectorId, array $filters = []): array
     {
         $filters['collector_id'] = $collectorId;
+
         return $this->search($filters);
     }
 
@@ -207,6 +208,7 @@ class PaymentService
     public function getByPayer(int $payerId, array $filters = []): array
     {
         $filters['payer_id'] = $payerId;
+
         return $this->search($filters);
     }
 
@@ -224,7 +226,7 @@ class PaymentService
     {
         $filters['limit'] = $limit;
         $filters['offset'] = $offset;
-        
+
         return $this->search($filters);
     }
 
@@ -252,6 +254,7 @@ class PaymentService
     public function getCreditCardPayments(array $filters = []): array
     {
         $filters['payment_type'] = 'credit_card';
+
         return $this->search($filters);
     }
 
@@ -266,6 +269,7 @@ class PaymentService
     public function getDebitCardPayments(array $filters = []): array
     {
         $filters['payment_type'] = 'debit_card';
+
         return $this->search($filters);
     }
 
@@ -280,6 +284,7 @@ class PaymentService
     public function getBankTransferPayments(array $filters = []): array
     {
         $filters['payment_type'] = 'bank_transfer';
+
         return $this->search($filters);
     }
 
@@ -294,6 +299,7 @@ class PaymentService
     public function getTicketPayments(array $filters = []): array
     {
         $filters['payment_type'] = 'ticket';
+
         return $this->search($filters);
     }
 
@@ -308,6 +314,7 @@ class PaymentService
     public function getRefundAccountMoneyPayments(array $filters = []): array
     {
         $filters['tags'] = 'refund_account_money';
+
         return $this->search($filters);
     }
 }

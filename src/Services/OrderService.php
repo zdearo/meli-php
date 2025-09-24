@@ -2,7 +2,6 @@
 
 namespace Zdearo\Meli\Services;
 
-use Zdearo\Meli\Exceptions\ApiException;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -21,8 +20,7 @@ class OrderService
     public function get(int $orderId): array
     {
         return ApiRequest::get("orders/{$orderId}")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -37,11 +35,11 @@ class OrderService
     {
         $request = ApiRequest::get('orders/search');
 
-        if (!empty($filters)) {
+        if (! empty($filters)) {
             $request->withQuery($filters);
         }
 
-        return $request->send()->json();
+        return $request->send();
     }
 
     /**
@@ -56,6 +54,7 @@ class OrderService
     public function getBySeller(int $sellerId, array $filters = []): array
     {
         $filters['seller'] = $sellerId;
+
         return $this->search($filters);
     }
 
@@ -71,6 +70,7 @@ class OrderService
     public function getByBuyer(int $buyerId, array $filters = []): array
     {
         $filters['buyer'] = $buyerId;
+
         return $this->search($filters);
     }
 
@@ -86,6 +86,7 @@ class OrderService
     public function getByStatus(string $status, array $filters = []): array
     {
         $filters['order.status'] = $status;
+
         return $this->search($filters);
     }
 
@@ -104,6 +105,7 @@ class OrderService
     {
         $filters["order.date_{$dateField}.from"] = $dateFrom;
         $filters["order.date_{$dateField}.to"] = $dateTo;
+
         return $this->search($filters);
     }
 
@@ -121,8 +123,9 @@ class OrderService
         if (is_array($tags)) {
             $tags = implode(',', $tags);
         }
-        
+
         $filters['tags'] = $tags;
+
         return $this->search($filters);
     }
 
@@ -140,8 +143,9 @@ class OrderService
         if (is_array($tags)) {
             $tags = implode(',', $tags);
         }
-        
+
         $filters['tags.not'] = $tags;
+
         return $this->search($filters);
     }
 
@@ -169,8 +173,7 @@ class OrderService
     public function getProductInfo(int $orderId): array
     {
         return ApiRequest::get("orders/{$orderId}/product")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -184,8 +187,7 @@ class OrderService
     public function getDiscounts(int $orderId): array
     {
         return ApiRequest::get("orders/{$orderId}/discounts")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -204,7 +206,7 @@ class OrderService
         $filters['limit'] = $limit;
         $filters['offset'] = $offset;
         $filters['sort'] = $sort;
-        
+
         return $this->search($filters);
     }
 

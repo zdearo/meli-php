@@ -3,7 +3,6 @@
 namespace Zdearo\Meli\Services;
 
 use Illuminate\Http\Client\Response;
-use Zdearo\Meli\Exceptions\ApiException;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -22,11 +21,10 @@ class QuestionService
     public function search(array $filters = []): array
     {
         $filters['api_version'] = 4;
-        
+
         return ApiRequest::get('questions/search')
             ->withQuery($filters)
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -41,6 +39,7 @@ class QuestionService
     public function getBySeller(int $sellerId, array $filters = []): array
     {
         $filters['seller_id'] = $sellerId;
+
         return $this->search($filters);
     }
 
@@ -56,6 +55,7 @@ class QuestionService
     public function getByItem(string $itemId, array $filters = []): array
     {
         $filters['item'] = $itemId;
+
         return $this->search($filters);
     }
 
@@ -73,6 +73,7 @@ class QuestionService
     {
         $filters['from'] = $userId;
         $filters['item'] = $itemId;
+
         return $this->search($filters);
     }
 
@@ -88,8 +89,7 @@ class QuestionService
     {
         return ApiRequest::get("questions/{$questionId}")
             ->withQuery(['api_version' => 4])
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -108,8 +108,7 @@ class QuestionService
                 'item_id' => $itemId,
                 'text' => $text,
             ])
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -128,8 +127,7 @@ class QuestionService
                 'question_id' => $questionId,
                 'text' => $text,
             ])
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -158,6 +156,7 @@ class QuestionService
     public function getUnansweredBySeller(int $sellerId, array $filters = []): array
     {
         $filters['status'] = 'UNANSWERED';
+
         return $this->getBySeller($sellerId, $filters);
     }
 
@@ -173,6 +172,7 @@ class QuestionService
     public function getAnsweredBySeller(int $sellerId, array $filters = []): array
     {
         $filters['status'] = 'ANSWERED';
+
         return $this->getBySeller($sellerId, $filters);
     }
 
@@ -188,6 +188,7 @@ class QuestionService
     public function getByStatus(string $status, array $filters = []): array
     {
         $filters['status'] = $status;
+
         return $this->search($filters);
     }
 
@@ -203,11 +204,11 @@ class QuestionService
      */
     public function searchSorted(array $filters = [], array $sortFields = [], string $sortType = 'ASC'): array
     {
-        if (!empty($sortFields)) {
+        if (! empty($sortFields)) {
             $filters['sort_fields'] = implode(',', $sortFields);
             $filters['sort_types'] = $sortType;
         }
-        
+
         return $this->search($filters);
     }
 
@@ -225,7 +226,7 @@ class QuestionService
     {
         $filters['limit'] = $limit;
         $filters['offset'] = $offset;
-        
+
         return $this->search($filters);
     }
 
@@ -240,8 +241,7 @@ class QuestionService
     public function getResponseTime(int $userId): array
     {
         return ApiRequest::get("users/{$userId}/questions/response_time")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -256,8 +256,7 @@ class QuestionService
     {
         return ApiRequest::post('my/questions/hidden')
             ->withBody(['question_ids' => $questionIds])
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
