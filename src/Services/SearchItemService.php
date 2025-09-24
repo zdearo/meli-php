@@ -3,7 +3,6 @@
 namespace Zdearo\Meli\Services;
 
 use Zdearo\Meli\Enums\MarketplaceEnum;
-use Zdearo\Meli\Exceptions\ApiException;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -39,8 +38,7 @@ class SearchItemService
     {
         return ApiRequest::get($this->siteUri)
             ->withQuery(['q' => $value, 'offset' => $offset])
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -55,8 +53,7 @@ class SearchItemService
     {
         return ApiRequest::get($this->siteUri)
             ->withQuery(['category' => $categoryId])
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -71,8 +68,7 @@ class SearchItemService
     {
         return ApiRequest::get($this->siteUri)
             ->withQuery(['nickname' => $nickname])
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -94,8 +90,7 @@ class SearchItemService
 
         return ApiRequest::get($this->siteUri)
             ->withQuery($query)
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -113,8 +108,7 @@ class SearchItemService
 
         return ApiRequest::get("users/{$userId}/items/search")
             ->withQuery($query)
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -136,8 +130,7 @@ class SearchItemService
 
         return ApiRequest::get('items')
             ->withQuery($query)
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -152,7 +145,6 @@ class SearchItemService
     {
         return ApiRequest::get('users')
             ->withQuery(['ids' => implode(',', $userIds)])
-            ->send()
-            ->json();
+            ->send();
     }
 }

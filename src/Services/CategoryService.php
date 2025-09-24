@@ -2,7 +2,6 @@
 
 namespace Zdearo\Meli\Services;
 
-use Zdearo\Meli\Exceptions\ApiException;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -20,8 +19,7 @@ class CategoryService
     public function getSites(): array
     {
         return ApiRequest::get('sites')
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -35,8 +33,7 @@ class CategoryService
     public function getCategories(string $siteId): array
     {
         return ApiRequest::get("sites/{$siteId}/categories")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -50,8 +47,7 @@ class CategoryService
     public function get(string $categoryId): array
     {
         return ApiRequest::get("categories/{$categoryId}")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -65,8 +61,7 @@ class CategoryService
     public function getAttributes(string $categoryId): array
     {
         return ApiRequest::get("categories/{$categoryId}/attributes")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -80,8 +75,7 @@ class CategoryService
     public function getListingExposures(string $siteId): array
     {
         return ApiRequest::get("sites/{$siteId}/listing_exposures")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -97,8 +91,7 @@ class CategoryService
     {
         return ApiRequest::get("sites/{$siteId}/listing_prices")
             ->withQuery(['price' => $price])
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -120,7 +113,8 @@ class CategoryService
             $request->withQuery(['limit' => $limit]);
         }
 
-        return $request->send()->json();
+        return $request
+            ->send();
     }
 
     /**
@@ -134,8 +128,7 @@ class CategoryService
     public function getClassifiedsPromotionPacks(string $categoryId): array
     {
         return ApiRequest::get("categories/{$categoryId}/classifieds_promotion_packs")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -149,7 +142,6 @@ class CategoryService
     public function getDomainTechnicalSpecs(string $domainId): array
     {
         return ApiRequest::get("domains/{$domainId}/technical_specs")
-            ->send()
-            ->json();
+            ->send();
     }
 }

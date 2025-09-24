@@ -21,8 +21,7 @@ class UserService
     public function get(int $userId): array
     {
         return ApiRequest::get("users/{$userId}")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -35,8 +34,7 @@ class UserService
     public function me(): array
     {
         return ApiRequest::get('users/me')
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -52,8 +50,7 @@ class UserService
     {
         return ApiRequest::put("users/{$userId}")
             ->withBody($userData)
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -67,8 +64,7 @@ class UserService
     public function getAddresses(int $userId): array
     {
         return ApiRequest::get("users/{$userId}/addresses")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -82,8 +78,7 @@ class UserService
     public function getAcceptedPaymentMethods(int $userId): array
     {
         return ApiRequest::get("users/{$userId}/accepted_payment_methods")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -97,8 +92,7 @@ class UserService
     public function getBrands(int $userId): array
     {
         return ApiRequest::get("users/{$userId}/brands")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -119,7 +113,7 @@ class UserService
             $request->withQuery(['category_id' => $categoryId]);
         }
 
-        return $request->send()->json();
+        return $request->send();
     }
 
     /**
@@ -141,7 +135,7 @@ class UserService
             $request->withQuery(['category_id' => $categoryId]);
         }
 
-        return $request->send()->json();
+        return $request->send();
     }
 
     /**
@@ -155,8 +149,7 @@ class UserService
     public function getClassifiedsPromotionPacks(int $userId): array
     {
         return ApiRequest::get("users/{$userId}/classifieds_promotion_packs")
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -172,8 +165,7 @@ class UserService
     {
         return ApiRequest::post("users/{$userId}/classifieds_promotion_packs")
             ->withBody($packData)
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
@@ -190,8 +182,7 @@ class UserService
     {
         return ApiRequest::get("users/{$userId}/classifieds_promotion_packs/{$listingType}")
             ->withQuery(['categoryId' => $categoryId])
-            ->send()
-            ->json();
+            ->send();
     }
 
     /**
