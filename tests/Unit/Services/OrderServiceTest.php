@@ -9,6 +9,7 @@ if (! function_exists('app')) {
         if ($abstract === 'meli.client') {
             return new \Zdearo\Meli\Support\MeliApiClient;
         }
+
         return null;
     }
 }
@@ -24,6 +25,7 @@ if (! function_exists('config')) {
             'meli.base_url' => 'https://api.mercadolibre.com/',
             'meli.api_token' => 'test-api-token',
         ];
+
         return $configs[$key] ?? $default;
     }
 }

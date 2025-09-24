@@ -2,6 +2,7 @@
 
 namespace Zdearo\Meli\Services;
 
+use Illuminate\Http\Client\Response;
 use Zdearo\Meli\Enums\MarketplaceEnum;
 use Zdearo\Meli\Support\ApiRequest;
 
@@ -30,11 +31,11 @@ class SearchItemService
      *
      * @param  string  $value  The search query
      * @param  int  $offset  The offset for pagination (optional)
-     * @return array<string, mixed> The search results
+     * @return Response The search results
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function byQuery(string $value, int $offset = 0): array
+    public function byQuery(string $value, int $offset = 0): Response
     {
         return ApiRequest::get($this->siteUri)
             ->withQuery(['q' => $value, 'offset' => $offset])
@@ -45,11 +46,11 @@ class SearchItemService
      * Search items by category.
      *
      * @param  string  $categoryId  The category ID
-     * @return array<string, mixed> The search results
+     * @return Response The search results
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function byCategory(string $categoryId): array
+    public function byCategory(string $categoryId): Response
     {
         return ApiRequest::get($this->siteUri)
             ->withQuery(['category' => $categoryId])
@@ -60,11 +61,11 @@ class SearchItemService
      * Search items by seller nickname.
      *
      * @param  string  $nickname  The seller nickname
-     * @return array<string, mixed> The search results
+     * @return Response The search results
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function byNickname(string $nickname): array
+    public function byNickname(string $nickname): Response
     {
         return ApiRequest::get($this->siteUri)
             ->withQuery(['nickname' => $nickname])
@@ -76,11 +77,11 @@ class SearchItemService
      *
      * @param  int  $sellerId  The seller ID
      * @param  string|null  $categoryId  The category ID (optional)
-     * @return array<string, mixed> The search results
+     * @return Response The search results
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function bySeller(int $sellerId, ?string $categoryId = null): array
+    public function bySeller(int $sellerId, ?string $categoryId = null): Response
     {
         $query = ['seller_id' => $sellerId];
 
@@ -98,11 +99,11 @@ class SearchItemService
      *
      * @param  int  $userId  The user ID
      * @param  bool  $scan  Whether to use scan search type
-     * @return array<string, mixed> The search results
+     * @return Response The search results
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function byUserItems(int $userId, bool $scan = false): array
+    public function byUserItems(int $userId, bool $scan = false): Response
     {
         $query = $scan ? ['search_type' => 'scan'] : [];
 
@@ -116,11 +117,11 @@ class SearchItemService
      *
      * @param  array<int, string>  $itemIds  The item IDs
      * @param  array<int, string>  $attributes  The attributes to include (optional)
-     * @return array<string, mixed> The items
+     * @return Response The items
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function multiGetItems(array $itemIds, array $attributes = []): array
+    public function multiGetItems(array $itemIds, array $attributes = []): Response
     {
         $query = ['ids' => implode(',', $itemIds)];
 
@@ -137,11 +138,11 @@ class SearchItemService
      * Get multiple users by their IDs.
      *
      * @param  array<int, int>  $userIds  The user IDs
-     * @return array<string, mixed> The users
+     * @return Response The users
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function multiGetUsers(array $userIds): array
+    public function multiGetUsers(array $userIds): Response
     {
         return ApiRequest::get('users')
             ->withQuery(['ids' => implode(',', $userIds)])

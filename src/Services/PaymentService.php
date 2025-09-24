@@ -2,6 +2,7 @@
 
 namespace Zdearo\Meli\Services;
 
+use Illuminate\Http\Client\Response;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -13,11 +14,11 @@ class PaymentService
      * Get payment details by ID (collection).
      *
      * @param  int  $paymentId  The payment ID
-     * @return array<string, mixed> The payment details
+     * @return Response The payment details
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function get(int $paymentId): array
+    public function get(int $paymentId): Response
     {
         return ApiRequest::get("collections/{$paymentId}")
             ->send();
@@ -27,11 +28,11 @@ class PaymentService
      * Search payments with filters.
      *
      * @param  array<string, mixed>  $filters  The search filters
-     * @return array<string, mixed> The search results
+     * @return Response The search results
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function search(array $filters = []): array
+    public function search(array $filters = []): Response
     {
         return ApiRequest::get('payments/search')
             ->withQuery($filters)
@@ -42,11 +43,11 @@ class PaymentService
      * Get payments by order ID.
      *
      * @param  int  $orderId  The order ID
-     * @return array<string, mixed> The order payments
+     * @return Response The order payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getByOrder(int $orderId): array
+    public function getByOrder(int $orderId): Response
     {
         return $this->search(['order_id' => $orderId]);
     }
@@ -55,11 +56,11 @@ class PaymentService
      * Get payments by external reference.
      *
      * @param  string  $externalReference  The external reference
-     * @return array<string, mixed> The payments with that reference
+     * @return Response The payments with that reference
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getByExternalReference(string $externalReference): array
+    public function getByExternalReference(string $externalReference): Response
     {
         return $this->search(['external_reference' => $externalReference]);
     }
@@ -69,11 +70,11 @@ class PaymentService
      *
      * @param  string  $status  The payment status (approved, rejected, pending, etc.)
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The filtered payments
+     * @return Response The filtered payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getByStatus(string $status, array $filters = []): array
+    public function getByStatus(string $status, array $filters = []): Response
     {
         $filters['status'] = $status;
 
@@ -84,11 +85,11 @@ class PaymentService
      * Get approved payments.
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The approved payments
+     * @return Response The approved payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getApprovedPayments(array $filters = []): array
+    public function getApprovedPayments(array $filters = []): Response
     {
         return $this->getByStatus('approved', $filters);
     }
@@ -97,11 +98,11 @@ class PaymentService
      * Get pending payments.
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The pending payments
+     * @return Response The pending payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getPendingPayments(array $filters = []): array
+    public function getPendingPayments(array $filters = []): Response
     {
         return $this->getByStatus('pending', $filters);
     }
@@ -110,11 +111,11 @@ class PaymentService
      * Get rejected payments.
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The rejected payments
+     * @return Response The rejected payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getRejectedPayments(array $filters = []): array
+    public function getRejectedPayments(array $filters = []): Response
     {
         return $this->getByStatus('rejected', $filters);
     }
@@ -123,11 +124,11 @@ class PaymentService
      * Get cancelled payments.
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The cancelled payments
+     * @return Response The cancelled payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getCancelledPayments(array $filters = []): array
+    public function getCancelledPayments(array $filters = []): Response
     {
         return $this->getByStatus('cancelled', $filters);
     }
@@ -136,11 +137,11 @@ class PaymentService
      * Get refunded payments.
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The refunded payments
+     * @return Response The refunded payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getRefundedPayments(array $filters = []): array
+    public function getRefundedPayments(array $filters = []): Response
     {
         return $this->getByStatus('refunded', $filters);
     }
@@ -152,11 +153,11 @@ class PaymentService
      * @param  string  $dateTo  The end date (ISO format)
      * @param  string  $dateField  The date field to filter by (created, approved, etc.)
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The filtered payments
+     * @return Response The filtered payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getByDateRange(string $dateFrom, string $dateTo, string $dateField = 'created', array $filters = []): array
+    public function getByDateRange(string $dateFrom, string $dateTo, string $dateField = 'created', array $filters = []): Response
     {
         $filters["date_{$dateField}.from"] = $dateFrom;
         $filters["date_{$dateField}.to"] = $dateTo;
@@ -169,11 +170,11 @@ class PaymentService
      *
      * @param  string  $paymentMethodId  The payment method ID (visa, master, account_money, etc.)
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The filtered payments
+     * @return Response The filtered payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getByPaymentMethod(string $paymentMethodId, array $filters = []): array
+    public function getByPaymentMethod(string $paymentMethodId, array $filters = []): Response
     {
         $filters['payment_method_id'] = $paymentMethodId;
 
@@ -185,11 +186,11 @@ class PaymentService
      *
      * @param  int  $collectorId  The collector/seller ID
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The collector payments
+     * @return Response The collector payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getByCollector(int $collectorId, array $filters = []): array
+    public function getByCollector(int $collectorId, array $filters = []): Response
     {
         $filters['collector_id'] = $collectorId;
 
@@ -201,11 +202,11 @@ class PaymentService
      *
      * @param  int  $payerId  The payer/buyer ID
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The payer payments
+     * @return Response The payer payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getByPayer(int $payerId, array $filters = []): array
+    public function getByPayer(int $payerId, array $filters = []): Response
     {
         $filters['payer_id'] = $payerId;
 
@@ -218,11 +219,11 @@ class PaymentService
      * @param  array<string, mixed>  $filters  Search filters
      * @param  int  $limit  Number of results per page
      * @param  int  $offset  Results offset
-     * @return array<string, mixed> The paginated results
+     * @return Response The paginated results
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function searchPaginated(array $filters = [], int $limit = 50, int $offset = 0): array
+    public function searchPaginated(array $filters = [], int $limit = 50, int $offset = 0): Response
     {
         $filters['limit'] = $limit;
         $filters['offset'] = $offset;
@@ -234,11 +235,11 @@ class PaymentService
      * Get account money payments.
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The account money payments
+     * @return Response The account money payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getAccountMoneyPayments(array $filters = []): array
+    public function getAccountMoneyPayments(array $filters = []): Response
     {
         return $this->getByPaymentMethod('account_money', $filters);
     }
@@ -247,11 +248,11 @@ class PaymentService
      * Get credit card payments.
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The credit card payments
+     * @return Response The credit card payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getCreditCardPayments(array $filters = []): array
+    public function getCreditCardPayments(array $filters = []): Response
     {
         $filters['payment_type'] = 'credit_card';
 
@@ -262,11 +263,11 @@ class PaymentService
      * Get debit card payments.
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The debit card payments
+     * @return Response The debit card payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getDebitCardPayments(array $filters = []): array
+    public function getDebitCardPayments(array $filters = []): Response
     {
         $filters['payment_type'] = 'debit_card';
 
@@ -277,11 +278,11 @@ class PaymentService
      * Get bank transfer payments.
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The bank transfer payments
+     * @return Response The bank transfer payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getBankTransferPayments(array $filters = []): array
+    public function getBankTransferPayments(array $filters = []): Response
     {
         $filters['payment_type'] = 'bank_transfer';
 
@@ -292,11 +293,11 @@ class PaymentService
      * Get ticket payments (boleto, etc.).
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The ticket payments
+     * @return Response The ticket payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getTicketPayments(array $filters = []): array
+    public function getTicketPayments(array $filters = []): Response
     {
         $filters['payment_type'] = 'ticket';
 
@@ -307,11 +308,11 @@ class PaymentService
      * Get payments with refund account money tag.
      *
      * @param  array<string, mixed>  $filters  Additional filters
-     * @return array<string, mixed> The refund account money payments
+     * @return Response The refund account money payments
      *
      * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getRefundAccountMoneyPayments(array $filters = []): array
+    public function getRefundAccountMoneyPayments(array $filters = []): Response
     {
         $filters['tags'] = 'refund_account_money';
 
