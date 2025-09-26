@@ -23,7 +23,7 @@ class MeliServiceProvider extends ServiceProvider
         });
 
         $this->app->bind(SearchItemService::class, function ($app) {
-            $region = MarketplaceEnum::from(config('meli.region', 'BRASIL'));
+            $region = MarketplaceEnum::{config('meli.region')};
             return new SearchItemService($region);
         });
     }
