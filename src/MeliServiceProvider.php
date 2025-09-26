@@ -4,6 +4,8 @@ namespace Zdearo\Meli;
 
 use Illuminate\Support\ServiceProvider;
 use Zdearo\Meli\Support\MeliApiClient;
+use Zdearo\Meli\Services\SearchItemService;
+use Zdearo\Meli\Enums\MarketplaceEnum;
 
 class MeliServiceProvider extends ServiceProvider
 {
@@ -18,6 +20,11 @@ class MeliServiceProvider extends ServiceProvider
 
         $this->app->singleton('meli', function ($app) {
             return new MeliApiClient;
+        });
+
+        $this->app->bind(SearchItemService::class, function ($app) {
+            $region = MarketplaceEnum::from(config('meli.region', 'BRASIL'));
+            return new SearchItemService($region);
         });
     }
 
