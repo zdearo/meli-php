@@ -1,6 +1,8 @@
 # Services Documentation
 
-This document provides detailed information about all available services in the Mercado Libre PHP SDK.
+Detailed documentation for all services in the Mercado Libre PHP SDK.
+
+All services are accessed via the `Meli` facade. Methods that return a single resource return a **DTO**. Search/list methods return a **SearchResult** DTO. Auxiliary endpoints return a raw **Response**.
 
 ## Table of Contents
 
@@ -14,40 +16,53 @@ This document provides detailed information about all available services in the 
 - [PaymentService](#paymentservice)
 - [NotificationService](#notificationservice)
 - [VisitsService](#visitsservice)
+- [DocumentationService](#documentationservice)
+- [Common Patterns](#common-patterns)
 
 ---
 
 ## AuthService
 
-Handles OAuth authentication with the Mercado Libre API.
+Handles OAuth 2.0 authentication with the Mercado Libre API.
+
+**Accessor:** `Meli::auth()`
 
 ### Methods
 
-#### `getToken(string $code): Response`
+#### `getToken(string $code): AuthToken`
+
 Exchange an authorization code for an access token.
 
 ```php
-$response = Meli::auth()->getToken($authorizationCode);
-$tokenData = $response->json();
+$token = Meli::auth()->getToken($code);
+$token->accessToken;    // string
+$token->refreshToken;   // ?string
+$token->expiresIn;      // int (seconds)
+$token->userId;         // ?int
+$token->scope;          // ?string
+$token->extra;          // array (unmapped fields)
 ```
 
-#### `refreshToken(string $refreshToken): Response`
+#### `refreshToken(string $refreshToken): AuthToken`
+
 Refresh an access token using a refresh token.
 
 ```php
-$response = Meli::auth()->refreshToken($refreshToken);
-$newTokenData = $response->json();
+$token = Meli::auth()->refreshToken($refreshToken);
 ```
 
 ---
 
 ## ProductService
 
-Manages product operations including CRUD operations and status management.
+Manages product (item) CRUD operations.
+
+**Accessor:** `Meli::products()`
 
 ### Methods
 
-#### `create(array $productData): array`
+#### `create(array $productData): Product`
+
 Create a new product listing.
 
 ```php
@@ -57,29 +72,47 @@ $product = Meli::products()->create([
     'price' => 99.99,
     'currency_id' => 'BRL',
     'available_quantity' => 10,
-    'condition' => 'new'
+    'condition' => 'new',
 ]);
+$product->id;    // "MLB123456789"
 ```
 
-#### `get(string $itemId): array`
+#### `get(string $itemId): Product`
+
 Get product details by item ID.
 
 ```php
 $product = Meli::products()->get('MLB123456789');
+$product->title;            // string
+$product->price;            // ?float
+$product->currencyId;       // ?string
+$product->categoryId;       // ?string
+$product->status;           // ?string
+$product->availableQuantity; // ?int
+$product->soldQuantity;     // ?int
+$product->permalink;        // ?string
+$product->thumbnail;        // ?string
+$product->pictures;         // array
+$product->attributes;       // array
+$product->variations;       // array
+$product->shipping;         // array
+$product->extra;            // array
 ```
 
-#### `update(string $itemId, array $updateData): array`
+#### `update(string $itemId, array $updateData): Product`
+
 Update product information.
 
 ```php
 $product = Meli::products()->update('MLB123456789', [
     'price' => 89.99,
-    'available_quantity' => 5
+    'available_quantity' => 5,
 ]);
 ```
 
-#### `changeStatus(string $itemId, string $status): array`
-Change product status (active, paused, closed).
+#### `changeStatus(string $itemId, string $status): Product`
+
+Change product status (`active`, `paused`, `closed`).
 
 ```php
 $product = Meli::products()->changeStatus('MLB123456789', 'paused');
@@ -89,491 +122,703 @@ $product = Meli::products()->changeStatus('MLB123456789', 'paused');
 
 ## SearchItemService
 
-Provides search functionality for products and items.
+Product search and discovery.
+
+**Accessor:** `Meli::searchItem()`
 
 ### Methods
 
-#### `byQuery(string $query, array $filters = []): array`
-Search products by query string.
+#### `byQuery(string $value, int $offset = 0): SearchResult`
+
+Search items by query string.
 
 ```php
-$results = Meli::searchItem()->byQuery('smartphone samsung', [
-    'limit' => 20,
-    'offset' => 0,
-    'sort' => 'price_asc'
-]);
+$results = Meli::searchItem()->byQuery('smartphone samsung');
+$results->results;  // array (raw search items)
+$results->total;    // int
+$results->offset;   // int
+$results->limit;    // int
 ```
 
-#### `byCategory(string $categoryId, array $filters = []): array`
-Search products within a specific category.
+#### `byQueryAll(string $value, int $limit = 50): LazyPaginator`
+
+Lazily iterate over all items matching a query.
+
+```php
+Meli::searchItem()->byQueryAll('smartphone')->cursor()->each(fn ($item) => ...);
+```
+
+#### `byCategory(string $categoryId): SearchResult`
+
+Search items within a specific category.
 
 ```php
 $results = Meli::searchItem()->byCategory('MLB1055');
 ```
 
-#### `bySeller(int $sellerId, array $filters = []): array`
-Search products from a specific seller.
+#### `byNickname(string $nickname): SearchResult`
+
+Search items by seller nickname.
+
+```php
+$results = Meli::searchItem()->byNickname('SELLER_NICK');
+```
+
+#### `bySeller(int $sellerId, ?string $categoryId = null): SearchResult`
+
+Search items from a specific seller, optionally filtered by category.
 
 ```php
 $results = Meli::searchItem()->bySeller(123456789);
+$results = Meli::searchItem()->bySeller(123456789, 'MLB1055');
 ```
 
-#### `byUserItems(int $userId, array $filters = []): array`
-Get items from a specific user.
+#### `byUserItems(int $userId, bool $scan = false): Response`
+
+Get items listed by a user. Pass `$scan = true` for scan/scroll pagination.
 
 ```php
-$items = Meli::searchItem()->byUserItems(123456789);
+$response = Meli::searchItem()->byUserItems(123456789);
 ```
 
-#### `multiGetItems(array $itemIds): array`
-Get multiple items by their IDs in a single request.
+#### `multiGetItems(array $itemIds, array $attributes = []): array<Product>`
+
+Get multiple items by IDs. Returns an array of `Product` DTOs.
 
 ```php
-$items = Meli::searchItem()->multiGetItems(['MLB123', 'MLB456', 'MLB789']);
+$products = Meli::searchItem()->multiGetItems(['MLB123', 'MLB456']);
+foreach ($products as $product) {
+    echo $product->title;
+}
+```
+
+#### `multiGetUsers(array $userIds): array<User>`
+
+Get multiple users by IDs. Returns an array of `User` DTOs.
+
+```php
+$users = Meli::searchItem()->multiGetUsers([123456, 789012]);
 ```
 
 ---
 
 ## UserService
 
-Manages user information and account-related operations.
+User information and account management.
+
+**Accessor:** `Meli::users()`
 
 ### Methods
 
-#### `get(int $userId): array`
-Get user information by user ID.
+#### `get(int $userId): User`
+
+Get user information by ID.
 
 ```php
 $user = Meli::users()->get(123456789);
+$user->nickname;           // ?string
+$user->firstName;          // ?string
+$user->lastName;           // ?string
+$user->email;              // ?string
+$user->countryId;          // ?string
+$user->sellerReputation;   // array
+$user->buyerReputation;    // array
+$user->extra;              // array
 ```
 
-#### `me(): array`
+#### `me(): User`
+
 Get authenticated user information.
 
 ```php
-$currentUser = Meli::users()->me();
+$me = Meli::users()->me();
 ```
 
-#### `update(int $userId, array $userData): array`
+#### `update(int $userId, array $userData): User`
+
 Update user information.
 
 ```php
-$user = Meli::users()->update(123456789, [
-    'first_name' => 'John',
-    'last_name' => 'Doe'
-]);
+$user = Meli::users()->update(123456789, ['first_name' => 'John']);
 ```
 
-#### `getAddresses(int $userId): array`
+#### `getAddresses(int $userId): Response`
+
 Get user addresses.
 
 ```php
-$addresses = Meli::users()->getAddresses(123456789);
+$response = Meli::users()->getAddresses(123456789);
+$addresses = $response->json();
 ```
 
-#### `getAcceptedPaymentMethods(int $userId): array`
-Get payment methods accepted by the seller.
+#### `getAcceptedPaymentMethods(int $userId): Response`
 
-```php
-$paymentMethods = Meli::users()->getAcceptedPaymentMethods(123456789);
-```
+Get accepted payment methods.
 
-#### `getBrands(int $userId): array`
-Get user's brands (for official stores).
+#### `getBrands(int $userId): Response`
 
-```php
-$brands = Meli::users()->getBrands(123456789);
-```
+Get user's brands.
 
-#### `getAvailableListingTypes(int $userId, string $categoryId = null): array`
-Get available listing types for the user.
+#### `getAvailableListingTypes(int $userId, ?string $categoryId = null): Response`
 
-```php
-$listingTypes = Meli::users()->getAvailableListingTypes(123456789, 'MLB1055');
-```
+Get available listing types.
+
+#### `getAvailableListingType(int $userId, string $listingTypeId, ?string $categoryId = null): Response`
+
+Get a specific listing type availability.
+
+#### `getClassifiedsPromotionPacks(int $userId): Response`
+
+Get classifieds promotion packs.
+
+#### `createClassifiedsPromotionPack(int $userId, array $packData): Response`
+
+Create a promotion pack.
+
+#### `checkListingAvailability(int $userId, string $listingType, string $categoryId): Response`
+
+Check listing availability for a type and category.
+
+#### `revokeApplicationPermission(int $userId, int $applicationId): Response`
+
+Revoke an application's permission.
 
 ---
 
 ## CategoryService
 
-Handles categories, sites, and marketplace structure information.
+Categories, attributes, and marketplace structure.
+
+**Accessor:** `Meli::categories()`
 
 ### Methods
 
-#### `getSites(): array`
-Get all available Mercado Libre sites.
+#### `get(string $categoryId): Category`
 
-```php
-$sites = Meli::categories()->getSites();
-```
-
-#### `getCategories(string $siteId): array`
-Get all categories for a specific site.
-
-```php
-$categories = Meli::categories()->getCategories('MLB');
-```
-
-#### `get(string $categoryId): array`
-Get category details by ID.
+Get category details by ID. Returns a `Category` DTO.
 
 ```php
 $category = Meli::categories()->get('MLB1055');
+$category->id;                  // string
+$category->name;                // ?string
+$category->pathFromRoot;        // array
+$category->childrenCategories;  // array
+$category->settings;            // array
+$category->extra;               // array
 ```
 
-#### `getAttributes(string $categoryId): array`
+#### `getSites(): Response`
+
+Get all available Mercado Libre sites.
+
+#### `getCategories(string $siteId): Response`
+
+Get all categories for a site.
+
+```php
+$response = Meli::categories()->getCategories('MLB');
+```
+
+#### `getAttributes(string $categoryId): Response`
+
 Get category attributes and requirements.
 
-```php
-$attributes = Meli::categories()->getAttributes('MLB1055');
-```
+#### `getListingExposures(string $siteId): Response`
 
-#### `getListingPrices(string $siteId, float $price): array`
-Get listing prices and fees for a site.
+Get listing types for a site.
 
-```php
-$prices = Meli::categories()->getListingPrices('MLB', 99.99);
-```
+#### `getListingPrices(string $siteId, float $price): Response`
 
-#### `predictCategory(string $siteId, string $query, int $limit = null): array`
+Get listing prices and fees.
+
+#### `predictCategory(string $siteId, string $query, ?int $limit = null): Response`
+
 Predict category based on title or attributes.
 
 ```php
-$predictions = Meli::categories()->predictCategory('MLB', 'smartphone samsung', 5);
+$response = Meli::categories()->predictCategory('MLB', 'iPhone 15', 5);
 ```
 
-#### `getDomainTechnicalSpecs(string $domainId): array`
+#### `getClassifiedsPromotionPacks(string $categoryId): Response`
+
+Get promotion packs for a category.
+
+#### `getDomainTechnicalSpecs(string $domainId): Response`
+
 Get technical specifications for a domain.
-
-```php
-$specs = Meli::categories()->getDomainTechnicalSpecs('MLB-CELLPHONES');
-```
 
 ---
 
 ## OrderService
 
-Manages orders and sales information.
+Order management and sales tracking.
+
+**Accessor:** `Meli::orders()`
 
 ### Methods
 
-#### `get(int $orderId): array`
-Get order details by ID.
+#### `get(int $orderId): Order`
+
+Get order details by ID. Returns an `Order` DTO.
 
 ```php
 $order = Meli::orders()->get(2000003508419013);
+$order->id;              // int
+$order->status;          // ?string
+$order->statusDetail;    // ?string
+$order->totalAmount;     // ?float
+$order->currencyId;      // ?string
+$order->dateCreated;     // ?string
+$order->dateClosed;      // ?string
+$order->buyer;           // array
+$order->seller;          // array
+$order->orderItems;      // array<OrderItem>
+$order->payments;        // array
+$order->shipping;        // array
+$order->tags;            // array
+$order->extra;           // array
 ```
 
-#### `search(array $filters = []): array`
-Search orders with filters.
+Each `OrderItem` has: `$item` (array), `$quantity` (int), `$unitPrice` (float), `$currencyId` (?string), `$extra` (array).
+
+#### `search(array $filters = []): SearchResult`
+
+Search orders. Returns `SearchResult` containing `Order` DTOs.
 
 ```php
-$orders = Meli::orders()->search([
+$result = Meli::orders()->search([
     'seller' => 123456789,
     'order.status' => 'paid',
-    'limit' => 20
+    'limit' => 20,
 ]);
+$result->results;  // array<Order>
+$result->total;    // int
 ```
 
-#### `getBySeller(int $sellerId, array $filters = []): array`
+#### `searchAll(array $filters = [], int $limit = 50): LazyPaginator`
+
+Lazily iterate over all matching orders.
+
+```php
+Meli::orders()->searchAll(['seller' => $sellerId])->cursor()->each(fn (Order $o) => ...);
+$all = Meli::orders()->searchAll(['seller' => $sellerId])->all(); // Collection
+```
+
+#### `getBySeller(int $sellerId, array $filters = []): SearchResult`
+
 Get orders by seller ID.
 
-```php
-$orders = Meli::orders()->getBySeller(123456789);
-```
+#### `getByBuyer(int $buyerId, array $filters = []): SearchResult`
 
-#### `getByStatus(string $status, array $filters = []): array`
+Get orders by buyer ID.
+
+#### `getByStatus(string $status, array $filters = []): SearchResult`
+
 Get orders by status.
 
-```php
-$paidOrders = Meli::orders()->getByStatus('paid');
-```
+#### `getByDateRange(string $dateFrom, string $dateTo, string $dateField = 'created', array $filters = []): SearchResult`
 
-#### `getByDateRange(string $dateFrom, string $dateTo, string $dateField = 'created', array $filters = []): array`
 Get orders within a date range.
 
 ```php
 $orders = Meli::orders()->getByDateRange(
     '2024-01-01T00:00:00.000Z',
     '2024-12-31T23:59:59.999Z',
-    'created'
 );
 ```
 
-#### `getByTags(string|array $tags, array $filters = []): array`
+#### `getByTags(string|array $tags, array $filters = []): SearchResult`
+
 Get orders with specific tags.
 
-```php
-$deliveredOrders = Meli::orders()->getByTags('delivered');
-$orders = Meli::orders()->getByTags(['paid', 'delivered']);
-```
+#### `getExcludingTags(string|array $tags, array $filters = []): SearchResult`
 
-#### `getMercadoShopsOrders(array $filters = []): array`
+Get orders excluding specific tags.
+
+#### `getMercadoShopsOrders(array $filters = []): SearchResult`
+
 Get Mercado Shops orders.
 
-```php
-$mshopsOrders = Meli::orders()->getMercadoShopsOrders();
-```
+#### `getProductInfo(int $orderId): Response`
 
-#### `getProductInfo(int $orderId): array`
 Get product information for an order.
 
-```php
-$productInfo = Meli::orders()->getProductInfo(2000003508419013);
-```
+#### `getDiscounts(int $orderId): Response`
 
-#### `getDiscounts(int $orderId): array`
 Get discounts applied to an order.
 
-```php
-$discounts = Meli::orders()->getDiscounts(2000003508419013);
-```
+#### `searchPaginated(array $filters = [], int $limit = 50, int $offset = 0, string $sort = 'date_asc'): SearchResult`
+
+Search with explicit pagination and sorting.
+
+#### Convenience Methods
+
+| Method | Filter |
+|---|---|
+| `getPaidOrders($filters)` | `status = paid` |
+| `getCancelledOrders($filters)` | `status = cancelled` |
+| `getDeliveredOrders($filters)` | `tags = delivered` |
+| `getFraudRiskOrders($filters)` | `tags = fraud_risk_detected` |
 
 ---
 
 ## QuestionService
 
-Manages questions and answers for products.
+Q&A system for products.
+
+**Accessor:** `Meli::questions()`
 
 ### Methods
 
-#### `search(array $filters = []): array`
-Search questions with filters.
+#### `get(int $questionId): Question`
 
-```php
-$questions = Meli::questions()->search([
-    'seller_id' => 123456789,
-    'status' => 'UNANSWERED',
-    'limit' => 50
-]);
-```
-
-#### `getBySeller(int $sellerId, array $filters = []): array`
-Get questions received by a seller.
-
-```php
-$questions = Meli::questions()->getBySeller(123456789);
-```
-
-#### `getByItem(string $itemId, array $filters = []): array`
-Get questions for a specific item.
-
-```php
-$questions = Meli::questions()->getByItem('MLB123456789');
-```
-
-#### `get(int $questionId): array`
-Get question details by ID.
+Get question details by ID. Returns a `Question` DTO.
 
 ```php
 $question = Meli::questions()->get(11436370259);
+$question->id;          // int
+$question->itemId;      // ?string
+$question->sellerId;    // ?int
+$question->status;      // ?string (ANSWERED, UNANSWERED, BANNED, etc.)
+$question->text;        // ?string
+$question->dateCreated; // ?string
+$question->from;        // array (buyer info)
+$question->answer;      // ?array (answer data)
+$question->extra;       // array
 ```
 
-#### `create(string $itemId, string $text): array`
-Create a new question for an item.
+#### `search(array $filters = []): SearchResult`
+
+Search questions. Returns `SearchResult` with `Question` DTOs.
+
+```php
+$result = Meli::questions()->search(['seller_id' => 123456789, 'status' => 'UNANSWERED']);
+```
+
+#### `searchAll(array $filters = [], int $limit = 50): LazyPaginator`
+
+Lazily iterate over all matching questions.
+
+```php
+Meli::questions()->searchAll(['seller_id' => $id])->cursor()->each(fn (Question $q) => ...);
+```
+
+#### `create(string $itemId, string $text): Question`
+
+Create a new question (max 2000 characters).
 
 ```php
 $question = Meli::questions()->create('MLB123456789', 'Do you have this in red?');
 ```
 
-#### `answer(int $questionId, string $text): array`
-Answer a question.
+#### `answer(int $questionId, string $text): Response`
+
+Answer a question (max 2000 characters).
 
 ```php
-$answer = Meli::questions()->answer(11436370259, 'Yes, we have it in red!');
+Meli::questions()->answer(11436370259, 'Yes, we have it in red!');
 ```
 
 #### `delete(int $questionId): Response`
+
 Delete a question.
 
-```php
-Meli::questions()->delete(11436370259);
-```
+#### `getBySeller(int $sellerId, array $filters = []): SearchResult`
 
-#### `getUnansweredBySeller(int $sellerId, array $filters = []): array`
+Get questions received by a seller.
+
+#### `getByItem(string $itemId, array $filters = []): SearchResult`
+
+Get questions for a specific item.
+
+#### `getByUser(int $userId, string $itemId, array $filters = []): SearchResult`
+
+Get questions by a user for an item.
+
+#### `getByStatus(string $status, array $filters = []): SearchResult`
+
+Get questions with a specific status.
+
+#### `getUnansweredBySeller(int $sellerId, array $filters = []): SearchResult`
+
 Get unanswered questions for a seller.
 
-```php
-$unanswered = Meli::questions()->getUnansweredBySeller(123456789);
-```
+#### `getAnsweredBySeller(int $sellerId, array $filters = []): SearchResult`
 
-#### `getResponseTime(int $userId): array`
-Get response time metrics for a user.
+Get answered questions for a seller.
 
-```php
-$metrics = Meli::questions()->getResponseTime(123456789);
-```
+#### `searchSorted(array $filters = [], array $sortFields = [], string $sortType = 'ASC'): SearchResult`
+
+Search with sorting.
+
+#### `searchPaginated(array $filters = [], int $limit = 50, int $offset = 0): SearchResult`
+
+Search with explicit pagination.
+
+#### `getResponseTime(int $userId): Response`
+
+Get response time metrics.
+
+#### `hideQuestions(array $questionIds): Response`
+
+Hide questions from listing.
+
+#### Convenience Methods
+
+| Method | Filter |
+|---|---|
+| `getBannedQuestions($filters)` | `status = BANNED` |
+| `getQuestionsUnderReview($filters)` | `status = UNDER_REVIEW` |
+| `getClosedUnansweredQuestions($filters)` | `status = CLOSED_UNANSWERED` |
 
 ---
 
 ## PaymentService
 
-Handles payment information and transaction details.
+Payment information and transaction details.
+
+**Accessor:** `Meli::payments()`
 
 ### Methods
 
-#### `get(int $paymentId): array`
-Get payment details by ID.
+#### `get(int $paymentId): Payment`
+
+Get payment details by ID. Returns a `Payment` DTO.
 
 ```php
 $payment = Meli::payments()->get(21463688923);
+$payment->id;                // int
+$payment->orderId;           // ?int
+$payment->payerId;           // ?int
+$payment->status;            // ?string
+$payment->statusDetail;      // ?string
+$payment->paymentMethodId;   // ?string
+$payment->paymentType;       // ?string
+$payment->transactionAmount; // ?float
+$payment->totalPaidAmount;   // ?float
+$payment->currencyId;        // ?string
+$payment->dateCreated;       // ?string
+$payment->dateApproved;      // ?string
+$payment->installments;      // ?int
+$payment->extra;             // array
 ```
 
-#### `search(array $filters = []): array`
-Search payments with filters.
+#### `search(array $filters = []): SearchResult`
+
+Search payments. Returns `SearchResult` with `Payment` DTOs.
 
 ```php
-$payments = Meli::payments()->search([
-    'collector_id' => 123456789,
-    'status' => 'approved',
-    'limit' => 20
-]);
+$result = Meli::payments()->search(['collector_id' => 123456789, 'status' => 'approved']);
 ```
 
-#### `getByOrder(int $orderId): array`
-Get payments for a specific order.
+#### `searchAll(array $filters = [], int $limit = 50): LazyPaginator`
+
+Lazily iterate over all matching payments.
 
 ```php
-$payments = Meli::payments()->getByOrder(2000003508419013);
+Meli::payments()->searchAll(['collector_id' => $id])->cursor()->each(fn (Payment $p) => ...);
 ```
 
-#### `getByStatus(string $status, array $filters = []): array`
+#### `getByOrder(int $orderId): SearchResult`
+
+Get payments for an order.
+
+#### `getByExternalReference(string $externalReference): SearchResult`
+
+Get payments by external reference.
+
+#### `getByStatus(string $status, array $filters = []): SearchResult`
+
 Get payments by status.
 
-```php
-$approvedPayments = Meli::payments()->getByStatus('approved');
-```
+#### `getByDateRange(string $dateFrom, string $dateTo, string $dateField = 'created', array $filters = []): SearchResult`
 
-#### `getByPaymentMethod(string $paymentMethodId, array $filters = []): array`
-Get payments by payment method.
-
-```php
-$cardPayments = Meli::payments()->getByPaymentMethod('visa');
-$accountPayments = Meli::payments()->getByPaymentMethod('account_money');
-```
-
-#### `getByDateRange(string $dateFrom, string $dateTo, string $dateField = 'created', array $filters = []): array`
 Get payments within a date range.
 
-```php
-$payments = Meli::payments()->getByDateRange(
-    '2024-01-01T00:00:00.000Z',
-    '2024-12-31T23:59:59.999Z',
-    'approved'
-);
-```
+#### `getByPaymentMethod(string $paymentMethodId, array $filters = []): SearchResult`
 
-#### `getApprovedPayments(array $filters = []): array`
-Get approved payments.
+Get payments by payment method.
 
-```php
-$approved = Meli::payments()->getApprovedPayments();
-```
+#### `getByCollector(int $collectorId, array $filters = []): SearchResult`
 
-#### `getPendingPayments(array $filters = []): array`
-Get pending payments.
+Get payments by collector (seller).
 
-```php
-$pending = Meli::payments()->getPendingPayments();
-```
+#### `getByPayer(int $payerId, array $filters = []): SearchResult`
+
+Get payments by payer (buyer).
+
+#### `searchPaginated(array $filters = [], int $limit = 50, int $offset = 0): SearchResult`
+
+Search with explicit pagination.
+
+#### Convenience Methods
+
+| Method | Filter |
+|---|---|
+| `getApprovedPayments($filters)` | `status = approved` |
+| `getPendingPayments($filters)` | `status = pending` |
+| `getRejectedPayments($filters)` | `status = rejected` |
+| `getCancelledPayments($filters)` | `status = cancelled` |
+| `getRefundedPayments($filters)` | `status = refunded` |
+| `getAccountMoneyPayments($filters)` | `payment_method = account_money` |
+| `getCreditCardPayments($filters)` | `payment_type = credit_card` |
+| `getDebitCardPayments($filters)` | `payment_type = debit_card` |
+| `getBankTransferPayments($filters)` | `payment_type = bank_transfer` |
+| `getTicketPayments($filters)` | `payment_type = ticket` |
+| `getRefundAccountMoneyPayments($filters)` | `tags = refund_account_money` |
 
 ---
 
 ## NotificationService
 
-Manages webhook notifications and missed feeds.
+Webhook notifications and missed feeds.
+
+**Accessor:** `Meli::notifications()`
 
 ### Methods
 
-#### `getMissedFeeds(int $appId, array $filters = []): array`
+#### `getMissedFeeds(int $appId, array $filters = []): SearchResult`
+
 Get missed notifications for an application.
 
 ```php
-$missedFeeds = Meli::notifications()->getMissedFeeds(123456789);
+$result = Meli::notifications()->getMissedFeeds(123456789);
 ```
 
-#### `getMissedFeedsByTopic(int $appId, string $topic, array $filters = []): array`
+#### `getMissedFeedsAll(int $appId, array $filters = [], int $limit = 100): LazyPaginator`
+
+Lazily iterate over all missed notifications.
+
+```php
+Meli::notifications()->getMissedFeedsAll($appId)->cursor()->each(fn ($notif) => ...);
+```
+
+#### `getMissedFeedsByTopic(int $appId, string $topic, array $filters = []): SearchResult`
+
 Get missed notifications by topic.
 
-```php
-$orderNotifications = Meli::notifications()->getMissedFeedsByTopic(123456789, 'orders_v2');
-```
+#### `getMissedFeedsPaginated(int $appId, int $limit = 10, int $offset = 0, ?string $topic = null): SearchResult`
 
-#### `getMissedFeedsPaginated(int $appId, int $limit = 10, int $offset = 0, string $topic = null): array`
-Get missed notifications with pagination.
+Get missed notifications with explicit pagination.
 
-```php
-$feeds = Meli::notifications()->getMissedFeedsPaginated(123456789, 20, 0, 'orders_v2');
-```
+#### `getResourceFromNotification(array $notification): Response`
 
-#### `getResourceFromNotification(array $notification): array`
-Get complete resource data from a notification.
+Fetch the full resource data referenced by a notification.
 
 ```php
-$notification = [
+$resource = Meli::notifications()->getResourceFromNotification([
     'resource' => '/orders/2000003508419013',
     'user_id' => 123456789,
     'topic' => 'orders_v2',
-    'application_id' => 987654321
-];
-
-$resourceData = Meli::notifications()->getResourceFromNotification($notification);
+    'application_id' => 987654321,
+]);
 ```
 
 #### `processNotification(array $notification): array`
+
 Process a notification and return both notification and resource data.
 
 ```php
 $result = Meli::notifications()->processNotification($notification);
-// Returns: ['notification' => ..., 'resource_data' => ...]
+// ['notification' => [...], 'resource_data' => Response]
 ```
 
 #### `validateNotification(array $notification): bool`
-Validate notification format.
 
-```php
-$isValid = Meli::notifications()->validateNotification($notification);
-```
+Validate notification format (checks for `resource`, `user_id`, `topic`, `application_id`).
 
-#### `getOrdersNotifications(int $appId, array $filters = []): array`
-Get order-specific notifications.
+#### Helper Methods
 
-```php
-$orderNotifications = Meli::notifications()->getOrdersNotifications(123456789);
-```
+| Method | Description |
+|---|---|
+| `getNotificationTopic($notification)` | Extract topic string |
+| `getNotificationActions($notification)` | Extract actions array |
+| `isTopicNotification($notification, $topic)` | Check if matches topic |
+| `hasNotificationAction($notification, $action)` | Check if contains action |
+
+#### Topic-Specific Methods
+
+| Method | Topic |
+|---|---|
+| `getOrdersNotifications($appId, $filters)` | `orders_v2` |
+| `getItemsNotifications($appId, $filters)` | `items` |
+| `getQuestionsNotifications($appId, $filters)` | `questions` |
+| `getPaymentsNotifications($appId, $filters)` | `payments` |
+| `getShipmentsNotifications($appId, $filters)` | `shipments` |
+| `getMessagesNotifications($appId, $filters)` | `messages` |
+| `getClaimsNotifications($appId, $filters)` | `post_purchase` |
 
 ---
 
 ## VisitsService
 
-Provides analytics and visit tracking functionality.
+Analytics and visit tracking.
+
+**Accessor:** `Meli::visits()`
+
+All methods return a raw `Response`.
 
 ### Methods
 
-#### `totalByUser(int $userId, string $dateFrom, string $dateTo): array`
-Get total visits for a user in a date range.
+#### `totalByUser(int $userId, string $dateFrom, string $dateTo): Response`
+
+Get total visits for a user's items in a date range.
 
 ```php
-$visits = Meli::visits()->totalByUser(123456789, '2024-01-01', '2024-12-31');
+$response = Meli::visits()->totalByUser(123456789, '2024-01-01', '2024-12-31');
 ```
 
-#### `totalByItem(string $itemId): array`
+#### `totalByItem(string $itemId): Response`
+
 Get total visits for a specific item.
 
+#### `totalByItemsDateRange(array $itemIds, string $dateFrom, string $dateTo): Response`
+
+Get total visits for multiple items in a date range.
+
+#### `visitsByUserTimeWindow(int $userId, int $last, string $unit, ?string $ending = null): Response`
+
+Get visits for a user's items within a time window.
+
 ```php
-$visits = Meli::visits()->totalByItem('MLB123456789');
+$response = Meli::visits()->visitsByUserTimeWindow(123456789, 30, 'day');
+$response = Meli::visits()->visitsByUserTimeWindow(123456789, 12, 'month');
 ```
 
-#### `visitsByUserTimeWindow(int $userId, int $period, string $unit): array`
-Get visits for a user in a specific time window.
+#### `visitsByItemTimeWindow(string $itemId, int $last, string $unit, ?string $ending = null): Response`
+
+Get visits for an item within a time window.
+
+---
+
+## DocumentationService
+
+Access Mercado Libre's technical documentation via the MCP server.
+
+**Accessor:** `Meli::documentation()`
+
+### Methods
+
+#### `search(string $query, string $language = 'pt_BR', ?string $siteId = null, ?int $limit = null, ?int $offset = null): array`
+
+Search the technical documentation.
 
 ```php
-// Last 30 days
-$visits = Meli::visits()->visitsByUserTimeWindow(123456789, 30, 'day');
-
-// Last 12 months
-$visits = Meli::visits()->visitsByUserTimeWindow(123456789, 12, 'month');
+$results = Meli::documentation()->search('items', 'pt_BR');
+$results = Meli::documentation()->search('orders', 'es', 'MLA', 10);
 ```
+
+#### `getPage(string $path, string $language = 'pt_BR', ?string $siteId = null): array`
+
+Get the full content of a documentation page.
+
+```php
+$page = Meli::documentation()->getPage('/pt_br/product-search');
+```
+
+#### `availableTools(): array`
+
+List all available MCP tools.
 
 ---
 
@@ -581,30 +826,36 @@ $visits = Meli::visits()->visitsByUserTimeWindow(123456789, 12, 'month');
 
 ### Error Handling
 
-All services throw `Illuminate\Http\Client\RequestException` for API errors:
+All services throw typed exceptions extending `MeliException`:
 
 ```php
-use Illuminate\Http\Client\RequestException;
+use Zdearo\Meli\Exceptions\MeliNotFoundException;
+use Zdearo\Meli\Exceptions\MeliValidationException;
+use Zdearo\Meli\Exceptions\MeliException;
 
 try {
-    $product = Meli::products()->get('MLB123456789');
-} catch (RequestException $e) {
-    // Handle API error
-    $statusCode = $e->response->status();
-    $errorBody = $e->response->body();
+    $product = Meli::products()->create($data);
+} catch (MeliValidationException $e) {
+    // $e->causes — array of validation errors
+    // $e->errorCode — "validation_error"
+    // $e->context — full response body
+} catch (MeliNotFoundException $e) {
+    // 404
+} catch (MeliException $e) {
+    // Catch-all
 }
 ```
 
-### Pagination
+### Lazy Pagination
 
-Many services support pagination with `limit` and `offset` parameters:
+Use `searchAll()` (or `byQueryAll()`, `getMissedFeedsAll()`) for memory-efficient iteration:
 
 ```php
-$orders = Meli::orders()->search([
-    'seller' => 123456789,
-    'limit' => 50,
-    'offset' => 100
-]);
+// Lazy — pages fetched on demand
+Meli::orders()->searchAll(['seller' => $id])->cursor()->each(fn (Order $o) => ...);
+
+// Collect all
+$all = Meli::orders()->searchAll(['seller' => $id])->all();
 ```
 
 ### Filtering
@@ -612,14 +863,14 @@ $orders = Meli::orders()->search([
 Services accept flexible filter arrays:
 
 ```php
-$orders = Meli::orders()->search([
+$result = Meli::orders()->search([
     'seller' => 123456789,
     'order.status' => 'paid',
     'order.date_created.from' => '2024-01-01T00:00:00.000Z',
     'order.date_created.to' => '2024-12-31T23:59:59.999Z',
     'tags' => 'delivered',
     'sort' => 'date_desc',
-    'limit' => 20
+    'limit' => 20,
 ]);
 ```
 
@@ -627,7 +878,26 @@ $orders = Meli::orders()->search([
 
 The API expects ISO 8601 format for dates:
 
+```
+2024-01-01T00:00:00.000Z
+```
+
+### DTO Extras
+
+All DTOs have an `$extra` array containing any fields returned by the API that aren't mapped to named properties:
+
 ```php
-$dateFrom = '2024-01-01T00:00:00.000Z';
-$dateTo = '2024-12-31T23:59:59.999Z';
+$product = Meli::products()->get('MLB123');
+$product->title;               // mapped property
+$product->extra['video_id'];   // unmapped field
+```
+
+### Multi-Tenancy
+
+```php
+// Per-request token
+Meli::withToken($token)->products()->get('MLB123');
+
+// Via connection object
+Meli::forConnection($connection)->orders()->getBySeller($id);
 ```
