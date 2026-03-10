@@ -3,7 +3,10 @@
 namespace Zdearo\Meli\Services;
 
 use Illuminate\Http\Client\Response;
+use Zdearo\Meli\DTO\Question;
+use Zdearo\Meli\DTO\SearchResult;
 use Zdearo\Meli\Support\ApiRequest;
+use Zdearo\Meli\Support\LazyPaginator;
 
 /**
  * Service for managing questions in the Mercado Libre API.
@@ -14,29 +17,51 @@ class QuestionService
      * Search questions with filters.
      *
      * @param  array<string, mixed>  $filters  The search filters
-     * @return Response The search results
+     * @return SearchResult The search results containing Question DTOs
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function search(array $filters = []): Response
+    public function search(array $filters = []): SearchResult
     {
         $filters['api_version'] = 4;
 
-        return ApiRequest::get('questions/search')
+        $data = ApiRequest::get('questions/search')
             ->withQuery($filters)
-            ->send();
+            ->send()
+            ->json();
+
+        return new SearchResult(
+            results: array_map(Question::fromArray(...), $data['questions'] ?? []),
+            total: $data['total'] ?? 0,
+            offset: $data['offset'] ?? 0,
+            limit: $data['limit'] ?? 50,
+        );
+    }
+
+    /**
+     * Lazily iterate over all questions matching the filters.
+     *
+     * @param  array<string, mixed>  $filters  Search filters
+     * @param  int  $limit  Results per page
+     * @return LazyPaginator Paginator yielding Question DTOs
+     */
+    public function searchAll(array $filters = [], int $limit = 50): LazyPaginator
+    {
+        return new LazyPaginator(
+            fetcher: function (int $offset, int $limit) use ($filters) {
+                $filters['limit'] = $limit;
+                $filters['offset'] = $offset;
+
+                return $this->search($filters);
+            },
+            limit: $limit,
+        );
     }
 
     /**
      * Get questions by seller ID.
-     *
-     * @param  int  $sellerId  The seller ID
-     * @param  array<string, mixed>  $filters  Additional filters
-     * @return Response The seller questions
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getBySeller(int $sellerId, array $filters = []): Response
+    public function getBySeller(int $sellerId, array $filters = []): SearchResult
     {
         $filters['seller_id'] = $sellerId;
 
@@ -45,14 +70,8 @@ class QuestionService
 
     /**
      * Get questions for a specific item.
-     *
-     * @param  string  $itemId  The item ID
-     * @param  array<string, mixed>  $filters  Additional filters
-     * @return Response The item questions
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getByItem(string $itemId, array $filters = []): Response
+    public function getByItem(string $itemId, array $filters = []): SearchResult
     {
         $filters['item'] = $itemId;
 
@@ -61,15 +80,8 @@ class QuestionService
 
     /**
      * Get questions by user (who asked the question).
-     *
-     * @param  int  $userId  The user ID who asked the question
-     * @param  string  $itemId  The item ID
-     * @param  array<string, mixed>  $filters  Additional filters
-     * @return Response The user questions
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getByUser(int $userId, string $itemId, array $filters = []): Response
+    public function getByUser(int $userId, string $itemId, array $filters = []): SearchResult
     {
         $filters['from'] = $userId;
         $filters['item'] = $itemId;
@@ -81,15 +93,18 @@ class QuestionService
      * Get question by ID.
      *
      * @param  int  $questionId  The question ID
-     * @return Response The question details
+     * @return Question The question details
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function get(int $questionId): Response
+    public function get(int $questionId): Question
     {
-        return ApiRequest::get("questions/{$questionId}")
+        $data = ApiRequest::get("questions/{$questionId}")
             ->withQuery(['api_version' => 4])
-            ->send();
+            ->send()
+            ->json();
+
+        return Question::fromArray($data);
     }
 
     /**
@@ -97,18 +112,21 @@ class QuestionService
      *
      * @param  string  $itemId  The item ID
      * @param  string  $text  The question text (max 2000 characters)
-     * @return Response The created question
+     * @return Question The created question
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function create(string $itemId, string $text): Response
+    public function create(string $itemId, string $text): Question
     {
-        return ApiRequest::post('questions')
+        $data = ApiRequest::post('questions')
             ->withBody([
                 'item_id' => $itemId,
                 'text' => $text,
             ])
-            ->send();
+            ->send()
+            ->json();
+
+        return Question::fromArray($data);
     }
 
     /**
@@ -118,7 +136,7 @@ class QuestionService
      * @param  string  $text  The answer text (max 2000 characters)
      * @return Response The created answer
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function answer(int $questionId, string $text): Response
     {
@@ -136,7 +154,7 @@ class QuestionService
      * @param  int  $questionId  The question ID
      * @return Response The response
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function delete(int $questionId): Response
     {
@@ -146,14 +164,8 @@ class QuestionService
 
     /**
      * Get unanswered questions by seller.
-     *
-     * @param  int  $sellerId  The seller ID
-     * @param  array<string, mixed>  $filters  Additional filters
-     * @return Response The unanswered questions
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getUnansweredBySeller(int $sellerId, array $filters = []): Response
+    public function getUnansweredBySeller(int $sellerId, array $filters = []): SearchResult
     {
         $filters['status'] = 'UNANSWERED';
 
@@ -162,14 +174,8 @@ class QuestionService
 
     /**
      * Get answered questions by seller.
-     *
-     * @param  int  $sellerId  The seller ID
-     * @param  array<string, mixed>  $filters  Additional filters
-     * @return Response The answered questions
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getAnsweredBySeller(int $sellerId, array $filters = []): Response
+    public function getAnsweredBySeller(int $sellerId, array $filters = []): SearchResult
     {
         $filters['status'] = 'ANSWERED';
 
@@ -180,12 +186,8 @@ class QuestionService
      * Get questions with specific status.
      *
      * @param  string  $status  The question status (ANSWERED, UNANSWERED, BANNED, etc.)
-     * @param  array<string, mixed>  $filters  Additional filters
-     * @return Response The filtered questions
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getByStatus(string $status, array $filters = []): Response
+    public function getByStatus(string $status, array $filters = []): SearchResult
     {
         $filters['status'] = $status;
 
@@ -194,15 +196,8 @@ class QuestionService
 
     /**
      * Search questions with sorting.
-     *
-     * @param  array<string, mixed>  $filters  Search filters
-     * @param  array<string>  $sortFields  Fields to sort by (item_id, seller_id, from_id, date_created)
-     * @param  string  $sortType  Sort type (ASC, DESC)
-     * @return Response The sorted results
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function searchSorted(array $filters = [], array $sortFields = [], string $sortType = 'ASC'): Response
+    public function searchSorted(array $filters = [], array $sortFields = [], string $sortType = 'ASC'): SearchResult
     {
         if (! empty($sortFields)) {
             $filters['sort_fields'] = implode(',', $sortFields);
@@ -214,15 +209,8 @@ class QuestionService
 
     /**
      * Search questions with pagination.
-     *
-     * @param  array<string, mixed>  $filters  Search filters
-     * @param  int  $limit  Number of results per page
-     * @param  int  $offset  Results offset
-     * @return Response The paginated results
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function searchPaginated(array $filters = [], int $limit = 50, int $offset = 0): Response
+    public function searchPaginated(array $filters = [], int $limit = 50, int $offset = 0): SearchResult
     {
         $filters['limit'] = $limit;
         $filters['offset'] = $offset;
@@ -236,7 +224,7 @@ class QuestionService
      * @param  int  $userId  The user ID
      * @return Response The response time metrics
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getResponseTime(int $userId): Response
     {
@@ -250,7 +238,7 @@ class QuestionService
      * @param  array<int>  $questionIds  Array of question IDs to hide
      * @return Response The response
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function hideQuestions(array $questionIds): Response
     {
@@ -261,39 +249,24 @@ class QuestionService
 
     /**
      * Get banned questions.
-     *
-     * @param  array<string, mixed>  $filters  Additional filters
-     * @return Response The banned questions
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getBannedQuestions(array $filters = []): Response
+    public function getBannedQuestions(array $filters = []): SearchResult
     {
         return $this->getByStatus('BANNED', $filters);
     }
 
     /**
      * Get questions under review.
-     *
-     * @param  array<string, mixed>  $filters  Additional filters
-     * @return Response The questions under review
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getQuestionsUnderReview(array $filters = []): Response
+    public function getQuestionsUnderReview(array $filters = []): SearchResult
     {
         return $this->getByStatus('UNDER_REVIEW', $filters);
     }
 
     /**
      * Get closed unanswered questions.
-     *
-     * @param  array<string, mixed>  $filters  Additional filters
-     * @return Response The closed unanswered questions
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getClosedUnansweredQuestions(array $filters = []): Response
+    public function getClosedUnansweredQuestions(array $filters = []): SearchResult
     {
         return $this->getByStatus('CLOSED_UNANSWERED', $filters);
     }

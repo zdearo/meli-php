@@ -3,6 +3,7 @@
 namespace Zdearo\Meli\Services;
 
 use Illuminate\Http\Client\Response;
+use Zdearo\Meli\DTO\User;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -14,27 +15,31 @@ class UserService
      * Get user information by user ID.
      *
      * @param  int  $userId  The user ID
-     * @return Response The user information
+     * @return User The user information
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function get(int $userId): Response
+    public function get(int $userId): User
     {
-        return ApiRequest::get("users/{$userId}")
+        $response = ApiRequest::get("users/{$userId}")
             ->send();
+
+        return User::fromArray($response->json());
     }
 
     /**
      * Get authenticated user information.
      *
-     * @return Response The authenticated user information
+     * @return User The authenticated user information
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function me(): Response
+    public function me(): User
     {
-        return ApiRequest::get('users/me')
+        $response = ApiRequest::get('users/me')
             ->send();
+
+        return User::fromArray($response->json());
     }
 
     /**
@@ -42,15 +47,17 @@ class UserService
      *
      * @param  int  $userId  The user ID
      * @param  array<string, mixed>  $userData  The user data to update
-     * @return Response The updated user information
+     * @return User The updated user information
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function update(int $userId, array $userData): Response
+    public function update(int $userId, array $userData): User
     {
-        return ApiRequest::put("users/{$userId}")
+        $response = ApiRequest::put("users/{$userId}")
             ->withBody($userData)
             ->send();
+
+        return User::fromArray($response->json());
     }
 
     /**
@@ -59,7 +66,7 @@ class UserService
      * @param  int  $userId  The user ID
      * @return Response The user addresses
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getAddresses(int $userId): Response
     {
@@ -73,7 +80,7 @@ class UserService
      * @param  int  $userId  The user ID
      * @return Response The accepted payment methods
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getAcceptedPaymentMethods(int $userId): Response
     {
@@ -87,7 +94,7 @@ class UserService
      * @param  int  $userId  The user ID
      * @return Response The user's brands
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getBrands(int $userId): Response
     {
@@ -102,12 +109,11 @@ class UserService
      * @param  string|null  $categoryId  Optional category ID
      * @return Response The available listing types
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getAvailableListingTypes(int $userId, ?string $categoryId = null): Response
     {
-        $endpoint = "users/{$userId}/available_listing_types";
-        $request = ApiRequest::get($endpoint);
+        $request = ApiRequest::get("users/{$userId}/available_listing_types");
 
         if ($categoryId) {
             $request->withQuery(['category_id' => $categoryId]);
@@ -124,12 +130,11 @@ class UserService
      * @param  string|null  $categoryId  Optional category ID
      * @return Response The listing type availability
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getAvailableListingType(int $userId, string $listingTypeId, ?string $categoryId = null): Response
     {
-        $endpoint = "users/{$userId}/available_listing_type/{$listingTypeId}";
-        $request = ApiRequest::get($endpoint);
+        $request = ApiRequest::get("users/{$userId}/available_listing_type/{$listingTypeId}");
 
         if ($categoryId) {
             $request->withQuery(['category_id' => $categoryId]);
@@ -144,7 +149,7 @@ class UserService
      * @param  int  $userId  The user ID
      * @return Response The promotion packs
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getClassifiedsPromotionPacks(int $userId): Response
     {
@@ -159,7 +164,7 @@ class UserService
      * @param  array<string, mixed>  $packData  The promotion pack data
      * @return Response The created promotion pack
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function createClassifiedsPromotionPack(int $userId, array $packData): Response
     {
@@ -176,7 +181,7 @@ class UserService
      * @param  string  $categoryId  The category ID
      * @return Response The availability information
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function checkListingAvailability(int $userId, string $listingType, string $categoryId): Response
     {
@@ -192,7 +197,7 @@ class UserService
      * @param  int  $applicationId  The application ID
      * @return Response The response
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function revokeApplicationPermission(int $userId, int $applicationId): Response
     {

@@ -3,6 +3,7 @@
 namespace Zdearo\Meli\Services;
 
 use Illuminate\Http\Client\Response;
+use Zdearo\Meli\DTO\Category;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -15,7 +16,7 @@ class CategoryService
      *
      * @return Response The available sites
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getSites(): Response
     {
@@ -29,7 +30,7 @@ class CategoryService
      * @param  string  $siteId  The site ID (e.g., MLB, MLA)
      * @return Response The categories
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getCategories(string $siteId): Response
     {
@@ -41,14 +42,17 @@ class CategoryService
      * Get category details by ID.
      *
      * @param  string  $categoryId  The category ID
-     * @return Response The category details
+     * @return Category The category details
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function get(string $categoryId): Response
+    public function get(string $categoryId): Category
     {
-        return ApiRequest::get("categories/{$categoryId}")
-            ->send();
+        $data = ApiRequest::get("categories/{$categoryId}")
+            ->send()
+            ->json();
+
+        return Category::fromArray($data);
     }
 
     /**
@@ -57,7 +61,7 @@ class CategoryService
      * @param  string  $categoryId  The category ID
      * @return Response The category attributes
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getAttributes(string $categoryId): Response
     {
@@ -71,7 +75,7 @@ class CategoryService
      * @param  string  $siteId  The site ID
      * @return Response The listing exposures
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getListingExposures(string $siteId): Response
     {
@@ -86,7 +90,7 @@ class CategoryService
      * @param  float  $price  The price to check
      * @return Response The listing prices
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getListingPrices(string $siteId, float $price): Response
     {
@@ -103,18 +107,18 @@ class CategoryService
      * @param  int|null  $limit  Optional limit of results
      * @return Response The predicted categories
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function predictCategory(string $siteId, string $query, ?int $limit = null): Response
     {
-        $request = ApiRequest::get("sites/{$siteId}/domain_discovery/search")
-            ->withQuery(['q' => $query]);
+        $queryParams = ['q' => $query];
 
         if ($limit) {
-            $request->withQuery(['limit' => $limit]);
+            $queryParams['limit'] = $limit;
         }
 
-        return $request
+        return ApiRequest::get("sites/{$siteId}/domain_discovery/search")
+            ->withQuery($queryParams)
             ->send();
     }
 
@@ -124,7 +128,7 @@ class CategoryService
      * @param  string  $categoryId  The category ID
      * @return Response The promotion packs
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getClassifiedsPromotionPacks(string $categoryId): Response
     {
@@ -138,7 +142,7 @@ class CategoryService
      * @param  string  $domainId  The domain ID
      * @return Response The technical specifications
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getDomainTechnicalSpecs(string $domainId): Response
     {

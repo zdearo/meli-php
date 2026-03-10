@@ -3,7 +3,9 @@
 namespace Zdearo\Meli\Services;
 
 use Illuminate\Http\Client\Response;
+use Zdearo\Meli\DTO\SearchResult;
 use Zdearo\Meli\Support\ApiRequest;
+use Zdearo\Meli\Support\LazyPaginator;
 
 /**
  * Service for managing notifications in the Mercado Libre API.
@@ -15,30 +17,52 @@ class NotificationService
      *
      * @param  int  $appId  The application ID
      * @param  array<string, mixed>  $filters  Optional filters (topic, offset, limit)
-     * @return Response The missed notifications
+     * @return SearchResult The missed notifications
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function getMissedFeeds(int $appId, array $filters = []): Response
+    public function getMissedFeeds(int $appId, array $filters = []): SearchResult
     {
         $filters['app_id'] = $appId;
 
-        return ApiRequest::get('missed_feeds')
+        $data = ApiRequest::get('missed_feeds')
             ->withQuery($filters)
-            ->send();
+            ->send()
+            ->json();
+
+        return new SearchResult(
+            results: $data['results'] ?? $data['messages'] ?? [],
+            total: $data['paging']['total'] ?? 0,
+            offset: $data['paging']['offset'] ?? 0,
+            limit: $data['paging']['limit'] ?? 10,
+        );
+    }
+
+    /**
+     * Lazily iterate over all missed notifications.
+     *
+     * @param  int  $appId  The application ID
+     * @param  array<string, mixed>  $filters  Optional filters
+     * @param  int  $limit  Results per page
+     * @return LazyPaginator Paginator yielding notification items
+     */
+    public function getMissedFeedsAll(int $appId, array $filters = [], int $limit = 100): LazyPaginator
+    {
+        return new LazyPaginator(
+            fetcher: function (int $offset, int $limit) use ($appId, $filters) {
+                $filters['limit'] = $limit;
+                $filters['offset'] = $offset;
+
+                return $this->getMissedFeeds($appId, $filters);
+            },
+            limit: $limit,
+        );
     }
 
     /**
      * Get missed notifications by topic.
-     *
-     * @param  int  $appId  The application ID
-     * @param  string  $topic  The notification topic
-     * @param  array<string, mixed>  $filters  Optional filters (offset, limit)
-     * @return Response The filtered notifications
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getMissedFeedsByTopic(int $appId, string $topic, array $filters = []): Response
+    public function getMissedFeedsByTopic(int $appId, string $topic, array $filters = []): SearchResult
     {
         $filters['topic'] = $topic;
 
@@ -47,16 +71,8 @@ class NotificationService
 
     /**
      * Get missed notifications with pagination.
-     *
-     * @param  int  $appId  The application ID
-     * @param  int  $limit  Number of results per page (default: 10, max: 100)
-     * @param  int  $offset  Results offset (default: 0)
-     * @param  string|null  $topic  Optional topic filter
-     * @return Response The paginated notifications
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
      */
-    public function getMissedFeedsPaginated(int $appId, int $limit = 10, int $offset = 0, ?string $topic = null): Response
+    public function getMissedFeedsPaginated(int $appId, int $limit = 10, int $offset = 0, ?string $topic = null): SearchResult
     {
         $filters = [
             'limit' => $limit,
@@ -76,7 +92,7 @@ class NotificationService
      * @param  array<string, mixed>  $notification  The notification data
      * @return Response The resource data
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function getResourceFromNotification(array $notification): Response
     {
@@ -94,11 +110,11 @@ class NotificationService
      * Process a notification and return the resource data.
      *
      * @param  array<string, mixed>  $notification  The notification data
-     * @return Response An array with notification details and resource data
+     * @return array{notification: array, resource_data: Response} Notification details and resource data
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function processNotification(array $notification): Response
+    public function processNotification(array $notification): array
     {
         $resourceData = $this->getResourceFromNotification($notification);
 
@@ -110,9 +126,6 @@ class NotificationService
 
     /**
      * Validate notification format.
-     *
-     * @param  array<string, mixed>  $notification  The notification data
-     * @return bool True if valid
      */
     public function validateNotification(array $notification): bool
     {
@@ -129,9 +142,6 @@ class NotificationService
 
     /**
      * Get notification topic from notification data.
-     *
-     * @param  array<string, mixed>  $notification  The notification data
-     * @return string|null The topic or null if not found
      */
     public function getNotificationTopic(array $notification): ?string
     {
@@ -140,9 +150,6 @@ class NotificationService
 
     /**
      * Get notification actions (for subtopic structure).
-     *
-     * @param  array<string, mixed>  $notification  The notification data
-     * @return array<string>|null The actions or null if not found
      */
     public function getNotificationActions(array $notification): ?array
     {
@@ -151,10 +158,6 @@ class NotificationService
 
     /**
      * Check if notification is from a specific topic.
-     *
-     * @param  array<string, mixed>  $notification  The notification data
-     * @param  string  $topic  The topic to check
-     * @return bool True if matches
      */
     public function isTopicNotification(array $notification, string $topic): bool
     {
@@ -162,11 +165,7 @@ class NotificationService
     }
 
     /**
-     * Check if notification contains specific action (for subtopic structure).
-     *
-     * @param  array<string, mixed>  $notification  The notification data
-     * @param  string  $action  The action to check
-     * @return bool True if contains the action
+     * Check if notification contains specific action.
      */
     public function hasNotificationAction(array $notification, string $action): bool
     {
@@ -175,100 +174,37 @@ class NotificationService
         return $actions ? in_array($action, $actions) : false;
     }
 
-    /**
-     * Get orders notifications.
-     *
-     * @param  int  $appId  The application ID
-     * @param  array<string, mixed>  $filters  Optional filters
-     * @return Response The orders notifications
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
-     */
-    public function getOrdersNotifications(int $appId, array $filters = []): Response
+    public function getOrdersNotifications(int $appId, array $filters = []): SearchResult
     {
         return $this->getMissedFeedsByTopic($appId, 'orders_v2', $filters);
     }
 
-    /**
-     * Get items notifications.
-     *
-     * @param  int  $appId  The application ID
-     * @param  array<string, mixed>  $filters  Optional filters
-     * @return Response The items notifications
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
-     */
-    public function getItemsNotifications(int $appId, array $filters = []): Response
+    public function getItemsNotifications(int $appId, array $filters = []): SearchResult
     {
         return $this->getMissedFeedsByTopic($appId, 'items', $filters);
     }
 
-    /**
-     * Get questions notifications.
-     *
-     * @param  int  $appId  The application ID
-     * @param  array<string, mixed>  $filters  Optional filters
-     * @return Response The questions notifications
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
-     */
-    public function getQuestionsNotifications(int $appId, array $filters = []): Response
+    public function getQuestionsNotifications(int $appId, array $filters = []): SearchResult
     {
         return $this->getMissedFeedsByTopic($appId, 'questions', $filters);
     }
 
-    /**
-     * Get payments notifications.
-     *
-     * @param  int  $appId  The application ID
-     * @param  array<string, mixed>  $filters  Optional filters
-     * @return Response The payments notifications
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
-     */
-    public function getPaymentsNotifications(int $appId, array $filters = []): Response
+    public function getPaymentsNotifications(int $appId, array $filters = []): SearchResult
     {
         return $this->getMissedFeedsByTopic($appId, 'payments', $filters);
     }
 
-    /**
-     * Get shipments notifications.
-     *
-     * @param  int  $appId  The application ID
-     * @param  array<string, mixed>  $filters  Optional filters
-     * @return Response The shipments notifications
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
-     */
-    public function getShipmentsNotifications(int $appId, array $filters = []): Response
+    public function getShipmentsNotifications(int $appId, array $filters = []): SearchResult
     {
         return $this->getMissedFeedsByTopic($appId, 'shipments', $filters);
     }
 
-    /**
-     * Get messages notifications.
-     *
-     * @param  int  $appId  The application ID
-     * @param  array<string, mixed>  $filters  Optional filters
-     * @return Response The messages notifications
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
-     */
-    public function getMessagesNotifications(int $appId, array $filters = []): Response
+    public function getMessagesNotifications(int $appId, array $filters = []): SearchResult
     {
         return $this->getMissedFeedsByTopic($appId, 'messages', $filters);
     }
 
-    /**
-     * Get claims notifications.
-     *
-     * @param  int  $appId  The application ID
-     * @param  array<string, mixed>  $filters  Optional filters
-     * @return Response The claims notifications
-     *
-     * @throws IlluminateHttpClientRequestException If the request fails
-     */
-    public function getClaimsNotifications(int $appId, array $filters = []): Response
+    public function getClaimsNotifications(int $appId, array $filters = []): SearchResult
     {
         return $this->getMissedFeedsByTopic($appId, 'post_purchase', $filters);
     }

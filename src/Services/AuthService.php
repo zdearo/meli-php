@@ -2,8 +2,8 @@
 
 namespace Zdearo\Meli\Services;
 
-use Illuminate\Http\Client\Response;
 use InvalidArgumentException;
+use Zdearo\Meli\DTO\AuthToken;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -15,16 +15,16 @@ class AuthService
      * Get an access token using an authorization code.
      *
      * @param  string  $code  The authorization code
-     * @return Response The response (use ->json() to get array data)
+     * @return AuthToken The authentication token
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      * @throws InvalidArgumentException If the required config is missing
      */
-    public function getToken(string $code): Response
+    public function getToken(string $code): AuthToken
     {
         $this->validateConfig();
 
-        return ApiRequest::post('oauth/token')
+        $response = ApiRequest::post('oauth/token')
             ->withBody([
                 'grant_type' => 'authorization_code',
                 'client_id' => config('meli.client_id'),
@@ -33,22 +33,24 @@ class AuthService
                 'redirect_uri' => config('meli.redirect_uri'),
             ])
             ->send();
+
+        return AuthToken::fromArray($response->json());
     }
 
     /**
      * Refresh an access token using a refresh token.
      *
      * @param  string  $refreshToken  The refresh token
-     * @return Response The response (use ->json() to get array data)
+     * @return AuthToken The refreshed authentication token
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      * @throws InvalidArgumentException If the required config is missing
      */
-    public function refreshToken(string $refreshToken): Response
+    public function refreshToken(string $refreshToken): AuthToken
     {
         $this->validateConfig();
 
-        return ApiRequest::post('oauth/token')
+        $response = ApiRequest::post('oauth/token')
             ->withBody([
                 'grant_type' => 'refresh_token',
                 'client_id' => config('meli.client_id'),
@@ -56,13 +58,10 @@ class AuthService
                 'refresh_token' => $refreshToken,
             ])
             ->send();
+
+        return AuthToken::fromArray($response->json());
     }
 
-    /**
-     * Validate required configuration.
-     *
-     * @throws InvalidArgumentException If the required config is missing
-     */
     private function validateConfig(): void
     {
         $required = ['client_id', 'client_secret', 'redirect_uri'];

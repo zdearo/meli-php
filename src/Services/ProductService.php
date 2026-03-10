@@ -3,6 +3,7 @@
 namespace Zdearo\Meli\Services;
 
 use Illuminate\Http\Client\Response;
+use Zdearo\Meli\DTO\Product;
 use Zdearo\Meli\Support\ApiRequest;
 
 /**
@@ -14,29 +15,33 @@ class ProductService
      * Create a new product.
      *
      * @param  array<string, mixed>  $productData  The product data
-     * @return Response The created product
+     * @return Product The created product
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function create(array $productData): Response
+    public function create(array $productData): Product
     {
-        return ApiRequest::post('items')
+        $response = ApiRequest::post('items')
             ->withBody($productData)
             ->send();
+
+        return Product::fromArray($response->json());
     }
 
     /**
      * Get a product by its ID.
      *
      * @param  string  $itemId  The product ID
-     * @return Response The product
+     * @return Product The product
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function get(string $itemId): Response
+    public function get(string $itemId): Product
     {
-        return ApiRequest::get("items/{$itemId}")
+        $response = ApiRequest::get("items/{$itemId}")
             ->send();
+
+        return Product::fromArray($response->json());
     }
 
     /**
@@ -44,15 +49,17 @@ class ProductService
      *
      * @param  string  $itemId  The product ID
      * @param  array<string, mixed>  $updateData  The update data
-     * @return Response The updated product
+     * @return Product The updated product
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function update(string $itemId, array $updateData): Response
+    public function update(string $itemId, array $updateData): Product
     {
-        return ApiRequest::put("items/{$itemId}")
+        $response = ApiRequest::put("items/{$itemId}")
             ->withBody($updateData)
             ->send();
+
+        return Product::fromArray($response->json());
     }
 
     /**
@@ -60,14 +67,16 @@ class ProductService
      *
      * @param  string  $itemId  The product ID
      * @param  string  $status  The new status
-     * @return Response The updated product
+     * @return Product The updated product
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function changeStatus(string $itemId, string $status): Response
+    public function changeStatus(string $itemId, string $status): Product
     {
-        return ApiRequest::put("items/{$itemId}")
+        $response = ApiRequest::put("items/{$itemId}")
             ->withBody(['status' => $status])
             ->send();
+
+        return Product::fromArray($response->json());
     }
 }

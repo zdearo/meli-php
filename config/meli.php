@@ -128,4 +128,21 @@ return [
     |
     */
     'access_token_resolver' => null,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Retry Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure automatic retry for failed API requests. When enabled,
+    | the client will retry requests that fail with rate limit (429)
+    | or server error (5xx) status codes.
+    |
+    | Set 'times' to 0 to disable retry (default).
+    |
+    */
+    'retry' => [
+        'times' => (int) env('MELI_RETRY_TIMES', 0),
+        'sleep_ms' => (int) env('MELI_RETRY_SLEEP_MS', 500),
+    ],
 ];

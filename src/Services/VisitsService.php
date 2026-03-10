@@ -18,7 +18,7 @@ class VisitsService
      * @param  string  $dateTo  The end date (format: YYYY-MM-DD)
      * @return Response The visit statistics
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function totalByUser(int $userId, string $dateFrom, string $dateTo): Response
     {
@@ -36,7 +36,7 @@ class VisitsService
      * @param  string  $itemId  The item ID
      * @return Response The visit statistics
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function totalByItem(string $itemId): Response
     {
@@ -53,7 +53,7 @@ class VisitsService
      * @param  string  $dateTo  The end date (format: YYYY-MM-DD)
      * @return Response The visit statistics
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function totalByItemsDateRange(array $itemIds, string $dateFrom, string $dateTo): Response
     {
@@ -75,7 +75,7 @@ class VisitsService
      * @param  string|null  $ending  The end date (format: YYYY-MM-DD)
      * @return Response The visit statistics
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function visitsByUserTimeWindow(int $userId, int $last, string $unit, ?string $ending = null): Response
     {
@@ -102,7 +102,7 @@ class VisitsService
      * @param  string|null  $ending  The end date (format: YYYY-MM-DD)
      * @return Response The visit statistics
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function visitsByItemTimeWindow(string $itemId, int $last, string $unit, ?string $ending = null): Response
     {

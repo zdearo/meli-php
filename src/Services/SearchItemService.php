@@ -3,24 +3,20 @@
 namespace Zdearo\Meli\Services;
 
 use Illuminate\Http\Client\Response;
+use Zdearo\Meli\DTO\SearchResult;
+use Zdearo\Meli\DTO\Product;
+use Zdearo\Meli\DTO\User;
 use Zdearo\Meli\Enums\MarketplaceEnum;
 use Zdearo\Meli\Support\ApiRequest;
+use Zdearo\Meli\Support\LazyPaginator;
 
 /**
  * Service for searching items in the Mercado Libre API.
  */
 class SearchItemService
 {
-    /**
-     * The site URI for search requests.
-     */
     private string $siteUri;
 
-    /**
-     * Create a new search item service instance.
-     *
-     * @param  MarketplaceEnum  $region  The marketplace region
-     */
     public function __construct(MarketplaceEnum $region)
     {
         $this->siteUri = "sites/{$region->value}/search";
@@ -30,46 +26,87 @@ class SearchItemService
      * Search items by query.
      *
      * @param  string  $value  The search query
-     * @param  int  $offset  The offset for pagination (optional)
-     * @return Response The search results
+     * @param  int  $offset  The offset for pagination
+     * @return SearchResult The search results
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function byQuery(string $value, int $offset = 0): Response
+    public function byQuery(string $value, int $offset = 0): SearchResult
     {
-        return ApiRequest::get($this->siteUri)
+        $data = ApiRequest::get($this->siteUri)
             ->withQuery(['q' => $value, 'offset' => $offset])
-            ->send();
+            ->send()
+            ->json();
+
+        return new SearchResult(
+            results: $data['results'] ?? [],
+            total: $data['paging']['total'] ?? 0,
+            offset: $data['paging']['offset'] ?? 0,
+            limit: $data['paging']['limit'] ?? 50,
+        );
+    }
+
+    /**
+     * Lazily iterate over all items matching a query.
+     *
+     * @param  string  $value  The search query
+     * @param  int  $limit  Results per page
+     * @return LazyPaginator Paginator yielding search result items
+     */
+    public function byQueryAll(string $value, int $limit = 50): LazyPaginator
+    {
+        return new LazyPaginator(
+            fetcher: function (int $offset) use ($value) {
+                return $this->byQuery($value, $offset);
+            },
+            limit: $limit,
+        );
     }
 
     /**
      * Search items by category.
      *
      * @param  string  $categoryId  The category ID
-     * @return Response The search results
+     * @return SearchResult The search results
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function byCategory(string $categoryId): Response
+    public function byCategory(string $categoryId): SearchResult
     {
-        return ApiRequest::get($this->siteUri)
+        $data = ApiRequest::get($this->siteUri)
             ->withQuery(['category' => $categoryId])
-            ->send();
+            ->send()
+            ->json();
+
+        return new SearchResult(
+            results: $data['results'] ?? [],
+            total: $data['paging']['total'] ?? 0,
+            offset: $data['paging']['offset'] ?? 0,
+            limit: $data['paging']['limit'] ?? 50,
+        );
     }
 
     /**
      * Search items by seller nickname.
      *
      * @param  string  $nickname  The seller nickname
-     * @return Response The search results
+     * @return SearchResult The search results
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function byNickname(string $nickname): Response
+    public function byNickname(string $nickname): SearchResult
     {
-        return ApiRequest::get($this->siteUri)
+        $data = ApiRequest::get($this->siteUri)
             ->withQuery(['nickname' => $nickname])
-            ->send();
+            ->send()
+            ->json();
+
+        return new SearchResult(
+            results: $data['results'] ?? [],
+            total: $data['paging']['total'] ?? 0,
+            offset: $data['paging']['offset'] ?? 0,
+            limit: $data['paging']['limit'] ?? 50,
+        );
     }
 
     /**
@@ -77,11 +114,11 @@ class SearchItemService
      *
      * @param  int  $sellerId  The seller ID
      * @param  string|null  $categoryId  The category ID (optional)
-     * @return Response The search results
+     * @return SearchResult The search results
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function bySeller(int $sellerId, ?string $categoryId = null): Response
+    public function bySeller(int $sellerId, ?string $categoryId = null): SearchResult
     {
         $query = ['seller_id' => $sellerId];
 
@@ -89,9 +126,17 @@ class SearchItemService
             $query['category'] = $categoryId;
         }
 
-        return ApiRequest::get($this->siteUri)
+        $data = ApiRequest::get($this->siteUri)
             ->withQuery($query)
-            ->send();
+            ->send()
+            ->json();
+
+        return new SearchResult(
+            results: $data['results'] ?? [],
+            total: $data['paging']['total'] ?? 0,
+            offset: $data['paging']['offset'] ?? 0,
+            limit: $data['paging']['limit'] ?? 50,
+        );
     }
 
     /**
@@ -101,7 +146,7 @@ class SearchItemService
      * @param  bool  $scan  Whether to use scan search type
      * @return Response The search results
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
     public function byUserItems(int $userId, bool $scan = false): Response
     {
@@ -117,11 +162,11 @@ class SearchItemService
      *
      * @param  array<int, string>  $itemIds  The item IDs
      * @param  array<int, string>  $attributes  The attributes to include (optional)
-     * @return Response The items
+     * @return array<Product> The items as Product DTOs
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function multiGetItems(array $itemIds, array $attributes = []): Response
+    public function multiGetItems(array $itemIds, array $attributes = []): array
     {
         $query = ['ids' => implode(',', $itemIds)];
 
@@ -129,23 +174,35 @@ class SearchItemService
             $query['attributes'] = implode(',', $attributes);
         }
 
-        return ApiRequest::get('items')
+        $data = ApiRequest::get('items')
             ->withQuery($query)
-            ->send();
+            ->send()
+            ->json();
+
+        return array_map(
+            fn (array $item) => Product::fromArray($item['body'] ?? $item),
+            $data
+        );
     }
 
     /**
      * Get multiple users by their IDs.
      *
      * @param  array<int, int>  $userIds  The user IDs
-     * @return Response The users
+     * @return array<User> The users as User DTOs
      *
-     * @throws IlluminateHttpClientRequestException If the request fails
+     * @throws \Zdearo\Meli\Exceptions\MeliException If the request fails
      */
-    public function multiGetUsers(array $userIds): Response
+    public function multiGetUsers(array $userIds): array
     {
-        return ApiRequest::get('users')
+        $data = ApiRequest::get('users')
             ->withQuery(['ids' => implode(',', $userIds)])
-            ->send();
+            ->send()
+            ->json();
+
+        return array_map(
+            fn (array $user) => User::fromArray($user['body'] ?? $user),
+            $data
+        );
     }
 }

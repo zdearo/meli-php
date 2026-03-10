@@ -17,14 +17,14 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Zdearo\Meli\Services\QuestionService questions()
  * @method static \Zdearo\Meli\Services\NotificationService notifications()
  * @method static \Zdearo\Meli\Services\PaymentService payments()
+ * @method static \Zdearo\Meli\Services\DocumentationService documentation()
+ * @method static static withToken(string $token)
+ * @method static static forConnection(mixed $connection)
  *
  * @see \Zdearo\Meli\Support\MeliApiClient
  */
 class Meli extends Facade
 {
-    /**
-     * Get the registered name of the component.
-     */
     protected static function getFacadeAccessor(): string
     {
         return 'meli';
