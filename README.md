@@ -17,7 +17,7 @@ A modern Laravel package for integrating with the Mercado Libre API. Provides ty
 ## Requirements
 
 - PHP 8.3+
-- Laravel 9.0+
+- Laravel 9.0–13.x
 
 ## Installation
 
